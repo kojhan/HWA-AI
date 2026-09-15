@@ -89,7 +89,8 @@
     }
 
     input,
-    select {
+    select,
+    textarea {
       width: 100%;
       padding: 18px;
       border-radius: 15px;
@@ -101,7 +102,8 @@
     }
 
     input:focus,
-    select:focus {
+    select:focus,
+    textarea:focus {
       border-color: #805cff;
     }
 
@@ -114,6 +116,11 @@
       font-size: 17px;
       font-weight: bold;
       cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .6;
     }
 
     .google {
@@ -136,7 +143,6 @@
     .start:disabled {
       background: #393342;
       color: #888;
-      cursor: not-allowed;
     }
 
     .status {
@@ -149,7 +155,7 @@
     }
 
     .hidden {
-      display: none;
+      display: none !important;
     }
 
     .progress {
@@ -223,6 +229,30 @@
       color: #ffc857;
     }
 
+    .recap-box {
+      margin-top: 20px;
+      padding: 20px;
+      background: #171923;
+      border: 1px solid #30333e;
+      border-radius: 16px;
+    }
+
+    #recapScript {
+      min-height: 550px;
+      resize: vertical;
+      line-height: 1.9;
+    }
+
+    .copy-btn {
+      background: #30333e;
+      color: white;
+    }
+
+    .download-btn {
+      background: #55e58a;
+      color: #07130b;
+    }
+
     @media (max-width: 600px) {
 
       header {
@@ -264,7 +294,6 @@
 
 </header>
 
-
 <div class="container">
 
   <h1>Movie Recap Studio</h1>
@@ -272,7 +301,6 @@
   <div class="subtitle">
     YouTube Video ကို မြန်မာလို Recap ပြုလုပ်ပေးမယ့် AI
   </div>
-
 
   <!-- LOGIN -->
 
@@ -294,15 +322,11 @@
 
     </div>
 
-
     <div id="loggedIn" class="hidden">
 
       <h2>👤 Logged in</h2>
 
-      <div
-        id="userEmail"
-        class="email">
-      </div>
+      <div id="userEmail" class="email"></div>
 
       <button
         class="logout"
@@ -313,7 +337,6 @@
     </div>
 
   </div>
-
 
   <!-- MAIN TOOL -->
 
@@ -332,7 +355,6 @@
       oninput="checkInput()"
     >
 
-
     <label>
       Recap Language
     </label>
@@ -348,7 +370,6 @@
       </option>
 
     </select>
-
 
     <label>
       Recap Length
@@ -374,7 +395,6 @@
 
     </select>
 
-
     <button
       id="startButton"
       class="start"
@@ -385,7 +405,6 @@
 
     </button>
 
-
     <div
       id="statusBox"
       class="status">
@@ -393,7 +412,6 @@
       🟢 Backend Connected — HWA AI Ready
 
     </div>
-
 
     <div
       id="progressBox"
@@ -413,7 +431,6 @@
       </div>
 
     </div>
-
 
     <!-- VIDEO RESULT -->
 
@@ -438,7 +455,6 @@
 
       </div>
 
-
       <div class="result-row">
 
         <div class="result-label">
@@ -451,7 +467,6 @@
         </div>
 
       </div>
-
 
       <div class="result-row">
 
@@ -466,7 +481,6 @@
 
       </div>
 
-
       <div class="result-row">
 
         <div class="result-label">
@@ -479,7 +493,6 @@
 
       </div>
 
-
       <div
         id="partList"
         class="part-list">
@@ -491,7 +504,6 @@
 
 </div>
 
-
 <script>
 
   // ==========================================
@@ -501,10 +513,8 @@
   const SUPABASE_URL =
     "https://ovobepocmajyrkyzkrsu.supabase.co";
 
-
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_L5Ch_awKHbdQJ8f_6sxJHQ_llUl394l";
-
 
   const supabaseClient =
     window.supabase.createClient(
@@ -534,7 +544,6 @@
         }
 
       });
-
 
       if (error) {
         alert(error.message);
@@ -579,7 +588,6 @@
     } =
     await supabaseClient.auth.getSession();
 
-
     if (
       session &&
       session.user
@@ -590,18 +598,15 @@
         .classList
         .add("hidden");
 
-
       document
         .getElementById("loggedIn")
         .classList
         .remove("hidden");
 
-
       document
         .getElementById("mainTool")
         .classList
         .remove("hidden");
-
 
       document
         .getElementById("userEmail")
@@ -624,7 +629,6 @@
 
       const parsed =
         new URL(url);
-
 
       return (
         parsed.hostname
@@ -652,15 +656,50 @@
         .value
         .trim();
 
-
     const button =
       document.getElementById(
         "startButton"
       );
 
-
     button.disabled =
       !isYouTubeUrl(url);
+
+  }
+
+
+  // ==========================================
+  // FORMAT TIME
+  // ==========================================
+
+  function formatDuration(seconds) {
+
+    seconds = Number(seconds || 0);
+
+    const h =
+      Math.floor(seconds / 3600);
+
+    const m =
+      Math.floor(
+        (seconds % 3600) / 60
+      );
+
+    const s =
+      Math.floor(seconds % 60);
+
+    if (h > 0) {
+
+      return (
+        h + "h " +
+        m + "m " +
+        s + "s"
+      );
+
+    }
+
+    return (
+      m + "m " +
+      s + "s"
+    );
 
   }
 
@@ -671,156 +710,626 @@
 
   async function startRecap() {
 
-  const url = document.getElementById("youtubeUrl").value.trim();
+    const url =
+      document
+        .getElementById("youtubeUrl")
+        .value
+        .trim();
 
-  if (!isYouTubeUrl(url)) {
-    alert("YouTube Link မှန်မှန်ထည့်ပါ။");
-    return;
-  }
+    if (!isYouTubeUrl(url)) {
 
-  const button = document.getElementById("startButton");
-  const status = document.getElementById("statusBox");
-  const progressBox = document.getElementById("progressBox");
-  const progressBar = document.getElementById("progressBar");
-  const progressText = document.getElementById("progressText");
-
-  button.disabled = true;
-  progressBox.classList.remove("hidden");
-
-  try {
-
-    progressBar.style.width = "15%";
-    progressText.textContent = "🔎 YouTube Video စစ်နေပါတယ်...";
-    status.innerHTML = "⏳ Video information ရယူနေပါတယ်...";
-
-    const infoResponse = await fetch(
-      "/api/youtube/info?url=" + encodeURIComponent(url)
-    );
-
-    const data = await infoResponse.json();
-
-    if (!infoResponse.ok || !data.success) {
-      throw new Error(data.message || "Video information မရပါ။");
-    }
-
-    progressBar.style.width = "30%";
-    progressText.textContent = "📝 Transcript ရယူနေပါတယ်...";
-    status.innerHTML = "⏳ Video စာသား ရယူနေပါတယ်...";
-
-    const transcriptResponse = await fetch(
-      "/api/youtube/transcript?url=" + encodeURIComponent(url)
-    );
-
-    const transcriptData = await transcriptResponse.json();
-
-    if (!transcriptResponse.ok || !transcriptData.success) {
-      throw new Error(
-        transcriptData.message || "Transcript မရပါ။"
+      alert(
+        "YouTube Link မှန်မှန်ထည့်ပါ။"
       );
+
+      return;
+
     }
 
-    const transcript =
-      transcriptData.transcript?.text ||
-      transcriptData.text ||
-      "";
+    const button =
+      document.getElementById(
+        "startButton"
+      );
 
-    if (!transcript) {
-      throw new Error("Transcript စာသား မတွေ့ပါ။");
-    }
+    const status =
+      document.getElementById(
+        "statusBox"
+      );
 
-    progressBar.style.width = "55%";
-    progressText.textContent = "🤖 Myanmar Recap ရေးနေပါတယ်...";
-    status.innerHTML = "⏳ AI က မြန်မာလို Recap Script ပြုလုပ်နေပါတယ်...";
+    const progressBox =
+      document.getElementById(
+        "progressBox"
+      );
 
-    const recapResponse = await fetch(
-      "/api/recap/generate",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          transcript: transcript,
-          language: "Myanmar",
-          video_title: data.title
-        })
+    const progressBar =
+      document.getElementById(
+        "progressBar"
+      );
+
+    const progressText =
+      document.getElementById(
+        "progressText"
+      );
+
+    const resultBox =
+      document.getElementById(
+        "resultBox"
+      );
+
+    const partList =
+      document.getElementById(
+        "partList"
+      );
+
+    button.disabled = true;
+
+    progressBox.classList.remove(
+      "hidden"
+    );
+
+    resultBox.classList.add(
+      "hidden"
+    );
+
+    partList.innerHTML = "";
+
+    try {
+
+      // --------------------------------------
+      // STEP 1 — VIDEO INFO
+      // --------------------------------------
+
+      progressBar.style.width =
+        "10%";
+
+      progressText.textContent =
+        "🔎 YouTube Video စစ်နေပါတယ်...";
+
+      status.innerHTML =
+        "⏳ Video information ရယူနေပါတယ်...";
+
+      const infoResponse =
+        await fetch(
+          "/api/youtube/info?url=" +
+          encodeURIComponent(url)
+        );
+
+      let data;
+
+      try {
+
+        data =
+          await infoResponse.json();
+
+      } catch {
+
+        throw new Error(
+          "Backend က မှန်ကန်တဲ့ response မပေးပါ။"
+        );
+
       }
-    );
 
-    const recapData = await recapResponse.json();
+      if (
+        !infoResponse.ok ||
+        !data.success
+      ) {
 
-    if (!recapResponse.ok || !recapData.success) {
-      throw new Error(
-        recapData.message || "Myanmar Recap မထုတ်နိုင်ပါ။"
+        throw new Error(
+          data.message ||
+          "Video information မရပါ။"
+        );
+
+      }
+
+
+      // --------------------------------------
+      // SHOW VIDEO INFO
+      // --------------------------------------
+
+      document
+        .getElementById(
+          "videoTitle"
+        )
+        .textContent =
+        data.title ||
+        "Unknown";
+
+      document
+        .getElementById(
+          "videoDuration"
+        )
+        .textContent =
+        formatDuration(
+          data.duration ||
+          data.total_seconds
+        );
+
+      const parts =
+        data.parts ||
+        data.plan ||
+        [];
+
+      document
+        .getElementById(
+          "totalParts"
+        )
+        .textContent =
+        Array.isArray(parts)
+          ? parts.length + " Parts"
+          : "Auto";
+
+      if (
+        Array.isArray(parts) &&
+        parts.length
+      ) {
+
+        partList.innerHTML =
+          parts
+            .map(
+              (part, index) => {
+
+                const start =
+                  part.start ||
+                  part.start_time ||
+                  0;
+
+                const end =
+                  part.end ||
+                  part.end_time ||
+                  0;
+
+                return `
+                  <div class="part">
+                    Part ${index + 1}
+                    — ${formatDuration(start)}
+                    → ${formatDuration(end)}
+                  </div>
+                `;
+
+              }
+            )
+            .join("");
+
+      }
+
+      resultBox.classList.remove(
+        "hidden"
       );
+
+
+      // --------------------------------------
+      // STEP 2 — TRANSCRIPT
+      // --------------------------------------
+
+      progressBar.style.width =
+        "25%";
+
+      progressText.textContent =
+        "📝 Transcript ရယူနေပါတယ်...";
+
+      status.innerHTML =
+        "⏳ Video စာသား ရယူနေပါတယ်...";
+
+      const transcriptResponse =
+        await fetch(
+          "/api/youtube/transcript?url=" +
+          encodeURIComponent(url)
+        );
+
+      let transcriptData;
+
+      try {
+
+        transcriptData =
+          await transcriptResponse.json();
+
+      } catch {
+
+        throw new Error(
+          "Transcript response မမှန်ပါ။"
+        );
+
+      }
+
+      if (
+        !transcriptResponse.ok ||
+        !transcriptData.success
+      ) {
+
+        throw new Error(
+          transcriptData.message ||
+          "Transcript မရပါ။"
+        );
+
+      }
+
+
+      // IMPORTANT:
+      // Full transcript object ကို backend သို့ပို့မည်
+
+      const transcript =
+        transcriptData.transcript ||
+        transcriptData;
+
+      const transcriptText =
+        transcript.text ||
+        transcriptData.text ||
+        "";
+
+      if (!transcriptText) {
+
+        throw new Error(
+          "Transcript စာသား မတွေ့ပါ။"
+        );
+
+      }
+
+
+      // --------------------------------------
+      // STEP 3 — AI RECAP
+      // --------------------------------------
+
+      progressBar.style.width =
+        "40%";
+
+      progressText.textContent =
+        "🤖 Myanmar Recap ရေးနေပါတယ်...";
+
+      status.innerHTML =
+        "⏳ AI က Video အကြောင်းအရာကို အပိုင်းလိုက်ဖတ်ပြီး မြန်မာလို Recap ရေးနေပါတယ်...";
+
+
+      /*
+        IMPORTANT
+
+        Backend ကို full transcript object
+        + duration
+        + total_seconds
+        ပို့ထားသည်။
+
+        Backend က 10-minute chunks
+        ခွဲပြီး AI ကို sequential processing
+        လုပ်ပေးနိုင်ရန်။
+      */
+
+      const recapResponse =
+        await fetch(
+          "/api/recap/generate",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                transcript:
+                  transcript,
+
+                language:
+                  document
+                    .getElementById(
+                      "language"
+                    )
+                    .value === "my"
+                    ? "Myanmar"
+                    : "English",
+
+                video_title:
+                  data.title ||
+                  "Movie Recap",
+
+                duration:
+                  data.duration ||
+                  data.total_seconds ||
+                  0,
+
+                total_seconds:
+                  data.total_seconds ||
+                  data.duration ||
+                  0,
+
+                style:
+                  "Natural Myanmar YouTube Movie Recap"
+
+              })
+
+            }
+        );
+
+
+      // --------------------------------------
+      // RESPONSE PARSING
+      // --------------------------------------
+
+      const responseText =
+        await recapResponse.text();
+
+      let recapData;
+
+      try {
+
+        recapData =
+          JSON.parse(responseText);
+
+      } catch {
+
+        recapData = {
+          success:
+            recapResponse.ok,
+          text:
+            responseText
+        };
+
+      }
+
+
+      if (
+        !recapResponse.ok ||
+        !recapData.success
+      ) {
+
+        throw new Error(
+          recapData.message ||
+          recapData.error ||
+          "Myanmar Recap မထုတ်နိုင်ပါ။"
+        );
+
+      }
+
+
+      const script =
+        recapData.script ||
+        recapData.text ||
+        recapData.recap ||
+        recapData.result ||
+        "";
+
+
+      if (!script) {
+
+        throw new Error(
+          "AI က Script အလွတ်ပြန်ပေးထားပါတယ်။"
+        );
+
+      }
+
+
+      // --------------------------------------
+      // COMPLETE
+      // --------------------------------------
+
+      progressBar.style.width =
+        "100%";
+
+      progressText.textContent =
+        "✅ Myanmar Recap Script ရပါပြီ";
+
+      status.innerHTML =
+        "✅ Myanmar Recap Ready";
+
+
+      // --------------------------------------
+      // CREATE SCRIPT EDITOR
+      // --------------------------------------
+
+      const oldBox =
+        document.getElementById(
+          "recapScriptBox"
+        );
+
+      if (oldBox) {
+
+        oldBox.remove();
+
+      }
+
+
+      const box =
+        document.createElement(
+          "div"
+        );
+
+      box.id =
+        "recapScriptBox";
+
+      box.className =
+        "recap-box";
+
+      box.innerHTML = `
+
+        <h3>
+          📝 Myanmar Recap Script
+        </h3>
+
+        <p style="color:#999;line-height:1.7;">
+          AI ထုတ်ပေးထားတဲ့ Script ကို
+          ဒီနေရာမှာ တိုက်ရိုက်ပြင်နိုင်ပါတယ်။
+        </p>
+
+        <textarea
+          id="recapScript"
+          placeholder="Myanmar Recap Script..."
+        ></textarea>
+
+        <button
+          class="copy-btn"
+          onclick="copyRecapScript()">
+          📋 Copy Script
+        </button>
+
+        <button
+          class="download-btn"
+          onclick="downloadRecapScript()">
+          💾 Download TXT
+        </button>
+
+      `;
+
+      document
+        .getElementById(
+          "mainTool"
+        )
+        .appendChild(box);
+
+
+      document
+        .getElementById(
+          "recapScript"
+        )
+        .value =
+        script;
+
+
+      // Scroll to result
+
+      box.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "HWA AI ERROR:",
+        error
+      );
+
+      progressBar.style.width =
+        "0%";
+
+      progressText.textContent =
+        "❌ Processing Failed";
+
+      status.innerHTML =
+        "❌ " +
+        (
+          error.message ||
+          "Unknown Error"
+        );
+
+    } finally {
+
+      button.disabled = false;
+
     }
 
-    const script =
-      recapData.script ||
-      recapData.text ||
-      recapData.recap ||
-      "";
+  }
 
-    progressBar.style.width = "100%";
-    progressText.textContent = "✅ Myanmar Recap Script ရပါပြီ";
-    status.innerHTML = "✅ Myanmar Recap Ready";
 
-    let oldBox = document.getElementById("recapScriptBox");
+  // ==========================================
+  // COPY SCRIPT
+  // ==========================================
 
-    if (oldBox) oldBox.remove();
+  async function copyRecapScript() {
 
-    const box = document.createElement("div");
+    const textarea =
+      document.getElementById(
+        "recapScript"
+      );
 
-    box.id = "recapScriptBox";
-    box.style.cssText =
-      "margin-top:20px;padding:20px;background:#171923;border:1px solid #30333e;border-radius:16px;";
+    if (!textarea) {
 
-    box.innerHTML = `
-      <h3>📝 Myanmar Recap Script</h3>
+      alert(
+        "Script မတွေ့ပါ။"
+      );
 
-      <textarea id="recapScript"
-        style="width:100%;min-height:500px;padding:15px;
-        box-sizing:border-box;border-radius:12px;
-        background:#0d0f15;color:white;
-        border:1px solid #30333e;
-        font-size:16px;line-height:1.8;">
-      </textarea>
+      return;
 
-      <br><br>
+    }
 
-      <button onclick="copyRecapScript()">
-        📋 Copy Script
-      </button>
-    `;
+    const text =
+      textarea.value;
 
-    document.body.appendChild(box);
+    try {
 
-    document.getElementById("recapScript").value = script;
+      await navigator.clipboard
+        .writeText(text);
 
-  } catch (error) {
+      alert(
+        "✅ Script copied!"
+      );
 
-    console.error(error);
+    } catch {
 
-    progressBar.style.width = "0%";
-    progressText.textContent = "❌ Processing Failed";
-    status.innerHTML = "❌ " + error.message;
+      textarea.select();
 
-  } finally {
+      document.execCommand(
+        "copy"
+      );
 
-    button.disabled = false;
+      alert(
+        "✅ Script copied!"
+      );
+
+    }
 
   }
-}
 
-function copyRecapScript() {
 
-  const text = document.getElementById("recapScript").value;
+  // ==========================================
+  // DOWNLOAD TXT
+  // ==========================================
 
-  navigator.clipboard.writeText(text)
-    .then(() => alert("✅ Script copied!"))
-    .catch(() => alert("Copy မလုပ်နိုင်ပါ။"));
+  function downloadRecapScript() {
 
-  }        
+    const textarea =
+      document.getElementById(
+        "recapScript"
+      );
+
+    if (!textarea) {
+
+      alert(
+        "Script မတွေ့ပါ။"
+      );
+
+      return;
+
+    }
+
+    const text =
+      textarea.value;
+
+    const blob =
+      new Blob(
+        [text],
+        {
+          type:
+            "text/plain;charset=utf-8"
+        }
+      );
+
+    const a =
+      document.createElement(
+        "a"
+      );
+
+    a.href =
+      URL.createObjectURL(
+        blob
+      );
+
+    a.download =
+      "HWA-AI-Movie-Recap.txt";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(
+      a.href
+    );
+
+  }
+
+
   // ==========================================
   // INIT
   // ==========================================
@@ -830,4 +1339,4 @@ function copyRecapScript() {
 </script>
 
 </body>
-  </html>
+          </html>
