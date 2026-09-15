@@ -340,8 +340,13 @@ app.get(
           data?.status,
 
         transcript:
-          data?.data?.transcript ||
-          null,
+  data?.data?.transcript ||
+  data?.transcript ||
+  data?.data?.text ||
+  data?.text ||
+  null,
+
+debug: data
 
         request:
           data?.request_id ||
