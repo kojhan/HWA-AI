@@ -786,12 +786,28 @@
         "⚙️ Dynamic Processing Plan ပြင်ဆင်နေပါတယ်...";
 
 
-      const video =
-        data.video;
+      const video = {
+  title: data.title,
+  duration: {
+    text: data.durationText
+  }
+};
 
-
-      const plan =
-        data.processing.plan;
+const plan = {
+  total_parts: data.parts.length,
+  parts: data.parts.map(part => ({
+    part: part.part,
+    duration: {
+      text:
+        Math.floor(part.duration / 60) +
+        "m " +
+        (part.duration % 60) +
+        "s"
+    },
+    start_seconds: part.start,
+    end_seconds: part.start + part.duration
+  }))
+};
 
 
       document
