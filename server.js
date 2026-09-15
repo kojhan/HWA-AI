@@ -8,14 +8,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
+// Serve HWA AI frontend
+app.use(express.static(__dirname));
+
 // Home
 app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    name: "HWA AI",
-    message: "HWA AI Backend is running",
-    version: "1.0.0"
-  });
+  res.sendFile(__dirname + "/index.html");
 });
 
 // Health Check
@@ -51,13 +49,16 @@ app.get("/api/me", async (req, res) => {
       });
     }
 
-    const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
-      method: "GET",
-      headers: {
-        apikey: supabaseKey,
-        Authorization: `Bearer ${token}`
+    const response = await fetch(
+      `${supabaseUrl}/auth/v1/user`,
+      {
+        method: "GET",
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${token}`
+        }
       }
-    });
+    );
 
     const data = await response.json();
 
