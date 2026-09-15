@@ -7,12 +7,14 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,"Noto Sans Myanmar",sans-serif;
   background:#0b0d12;
   color:#fff;
 }
+
 header{
   padding:18px 20px;
   border-bottom:1px solid #252832;
@@ -20,31 +22,40 @@ header{
   justify-content:space-between;
   align-items:center;
 }
+
 .logo{
   font-size:24px;
   font-weight:bold;
 }
+
 .logo span{color:#7c5cff}
+
 .status{
   color:#55e68a;
   font-size:13px;
 }
+
 .container{
   max-width:850px;
   margin:auto;
   padding:30px 18px;
 }
+
 .hero{
   text-align:center;
   margin-bottom:30px;
 }
+
 .hero h1{
   font-size:32px;
   margin:10px 0;
 }
+
 .hero p{
   color:#9da3b0;
+  line-height:1.8;
 }
+
 .card{
   background:#13161d;
   border:1px solid #272b36;
@@ -52,11 +63,13 @@ header{
   padding:22px;
   margin-bottom:18px;
 }
+
 label{
   display:block;
   margin-bottom:8px;
   color:#cbd0da;
 }
+
 input,select,textarea{
   width:100%;
   background:#0d1016;
@@ -67,19 +80,23 @@ input,select,textarea{
   outline:none;
   font-size:15px;
 }
+
 input:focus,textarea:focus{
   border-color:#7c5cff;
 }
+
 textarea{
   min-height:300px;
   resize:vertical;
   line-height:1.7;
 }
+
 .row{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
 }
+
 button{
   width:100%;
   border:0;
@@ -89,23 +106,39 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
+
 .primary{
   background:#7c5cff;
   color:white;
 }
+
 .primary:disabled{
   background:#363944;
   color:#888;
   cursor:not-allowed;
 }
+
 .secondary{
   background:#242832;
   color:white;
   margin-top:10px;
 }
+
+.google{
+  background:white;
+  color:#111;
+}
+
+.logout{
+  background:#242832;
+  color:#fff;
+  margin-top:10px;
+}
+
 .result{
   display:none;
 }
+
 .message{
   margin-top:12px;
   padding:12px;
@@ -113,13 +146,35 @@ button{
   background:#1c2029;
   color:#b9c0cc;
   font-size:14px;
+  line-height:1.6;
 }
+
 .loading{
   display:none;
   text-align:center;
   padding:15px;
   color:#9d8cff;
 }
+
+.userBox{
+  display:none;
+  margin-bottom:18px;
+  padding:15px;
+  border-radius:12px;
+  background:#171a22;
+  border:1px solid #292e3a;
+}
+
+.userEmail{
+  color:#9d8cff;
+  word-break:break-all;
+  margin-bottom:10px;
+}
+
+.loginBox{
+  display:block;
+}
+
 @media(max-width:600px){
   .row{grid-template-columns:1fr}
   .hero h1{font-size:27px}
@@ -138,11 +193,55 @@ button{
 
   <div class="hero">
     <h1>Movie Recap Studio</h1>
-    <p>ဗီဒီယိုထဲက ဇာတ်လမ်းကို မြန်မာလို သဘာဝကျကျ Recap ပြန်ရေးပေးမယ့် AI</p>
+    <p>
+      ဗီဒီယိုထဲက ဇာတ်လမ်းကို မြန်မာလို
+      သဘာဝကျကျ Recap ပြန်ရေးပေးမယ့် AI
+    </p>
   </div>
 
-  <div class="card">
+  <!-- LOGIN -->
+  <div class="card loginBox" id="loginBox">
+
+    <h2>🔐 HWA AI Login</h2>
+
+    <p style="color:#9da3b0;line-height:1.7">
+      HWA AI ကိုအသုံးပြုရန် Google Account ဖြင့် Login ဝင်ပါ။
+    </p>
+
+    <button
+      class="google"
+      onclick="loginWithGoogle()">
+      🔵 Continue with Google
+    </button>
+
+    <div class="message" id="loginMessage">
+      Google Login Ready
+    </div>
+
+  </div>
+
+  <!-- USER -->
+  <div class="card userBox" id="userBox">
+
+    <div style="font-weight:bold;margin-bottom:8px">
+      👤 Logged in
+    </div>
+
+    <div class="userEmail" id="userEmail"></div>
+
+    <button
+      class="logout"
+      onclick="logout()">
+      Logout
+    </button>
+
+  </div>
+
+  <!-- MOVIE RECAP -->
+  <div class="card" id="recapCard" style="display:none">
+
     <label>YouTube Video Link</label>
+
     <input
       id="youtubeUrl"
       type="url"
@@ -150,8 +249,10 @@ button{
     >
 
     <div class="row" style="margin-top:15px">
+
       <div>
         <label>Recap Language</label>
+
         <select id="language">
           <option value="my">မြန်မာ</option>
           <option value="en">English</option>
@@ -160,20 +261,21 @@ button{
 
       <div>
         <label>Recap Length</label>
+
         <select id="length">
           <option value="short">Short</option>
           <option value="medium" selected>Medium</option>
           <option value="long">Long</option>
         </select>
       </div>
+
     </div>
 
     <button
       class="primary"
       id="startBtn"
       style="margin-top:18px"
-      onclick="startRecap()"
-    >
+      onclick="startRecap()">
       🎬 Start Movie Recap
     </button>
 
@@ -182,11 +284,14 @@ button{
     </div>
 
     <div class="message" id="message">
-      Backend: စစ်ဆေးနေပါတယ်...
+      Backend စစ်ဆေးနေပါတယ်...
     </div>
+
   </div>
 
+  <!-- RESULT -->
   <div class="card result" id="resultCard">
+
     <label>AI Recap Script</label>
 
     <textarea
@@ -194,21 +299,179 @@ button{
       placeholder="AI ထုတ်ပေးမယ့် မြန်မာ Recap Script..."
     ></textarea>
 
-    <button class="secondary" onclick="copyScript()">
+    <button
+      class="secondary"
+      onclick="copyScript()">
       📋 Copy Script
     </button>
 
-    <button class="secondary" onclick="downloadScript()">
+    <button
+      class="secondary"
+      onclick="downloadScript()">
       ⬇️ Download TXT
     </button>
+
   </div>
 
 </div>
 
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+
+/* =====================================
+   HWA AI SUPABASE CONFIG
+   ===================================== */
+
+const SUPABASE_URL =
+  "https://ovobepocmajyrkyzkrsu.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_L5Ch_awKHbdQJ8f_6sxJHQ_llUl394l";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =====================================
+   BACKEND
+   ===================================== */
 
 const BACKEND =
   "https://hwa-ai.onrender.com";
+
+
+/* =====================================
+   GOOGLE LOGIN
+   ===================================== */
+
+async function loginWithGoogle(){
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+  loginMessage.innerHTML =
+    "⏳ Google Login ဖွင့်နေပါတယ်...";
+
+  const { error } =
+    await supabaseClient.auth.signInWithOAuth({
+
+      provider:"google",
+
+      options:{
+        redirectTo:
+          window.location.origin
+      }
+
+    });
+
+  if(error){
+
+    loginMessage.innerHTML =
+      "❌ Login Error: " + error.message;
+
+  }
+
+}
+
+
+/* =====================================
+   CHECK LOGIN
+   ===================================== */
+
+async function checkLogin(){
+
+  const {
+    data:{
+      session
+    }
+  } =
+    await supabaseClient.auth.getSession();
+
+  updateLoginUI(session);
+
+}
+
+
+/* =====================================
+   LOGIN STATE
+   ===================================== */
+
+function updateLoginUI(session){
+
+  const loginBox =
+    document.getElementById("loginBox");
+
+  const userBox =
+    document.getElementById("userBox");
+
+  const recapCard =
+    document.getElementById("recapCard");
+
+  const userEmail =
+    document.getElementById("userEmail");
+
+  if(session && session.user){
+
+    loginBox.style.display =
+      "none";
+
+    userBox.style.display =
+      "block";
+
+    recapCard.style.display =
+      "block";
+
+    userEmail.innerHTML =
+      session.user.email || "Google User";
+
+  }else{
+
+    loginBox.style.display =
+      "block";
+
+    userBox.style.display =
+      "none";
+
+    recapCard.style.display =
+      "none";
+
+  }
+
+}
+
+
+/* =====================================
+   AUTH STATE LISTENER
+   ===================================== */
+
+supabaseClient.auth.onAuthStateChange(
+  (_event, session) => {
+
+    updateLoginUI(session);
+
+  }
+);
+
+
+/* =====================================
+   LOGOUT
+   ===================================== */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+}
+
+
+/* =====================================
+   BACKEND CHECK
+   ===================================== */
 
 async function checkBackend(){
 
@@ -218,7 +481,9 @@ async function checkBackend(){
   try{
 
     const response =
-      await fetch(BACKEND + "/api/health");
+      await fetch(
+        BACKEND + "/api/health"
+      );
 
     const data =
       await response.json();
@@ -241,12 +506,21 @@ async function checkBackend(){
       "❌ Backend ချိတ်မရပါ";
 
   }
+
 }
+
+
+/* =====================================
+   START RECAP
+   ===================================== */
 
 async function startRecap(){
 
   const url =
-    document.getElementById("youtubeUrl").value.trim();
+    document
+      .getElementById("youtubeUrl")
+      .value
+      .trim();
 
   const message =
     document.getElementById("message");
@@ -266,6 +540,7 @@ async function startRecap(){
       "⚠️ YouTube Link အရင်ထည့်ပါ";
 
     return;
+
   }
 
   if(
@@ -277,58 +552,69 @@ async function startRecap(){
       "⚠️ YouTube Link မမှန်ပါ";
 
     return;
+
   }
 
   startBtn.disabled = true;
-  loading.style.display = "block";
+
+  loading.style.display =
+    "block";
 
   message.innerHTML =
     "🎬 Video ကို စတင်စစ်ဆေးနေပါတယ်...";
 
-  resultCard.style.display = "block";
+  resultCard.style.display =
+    "block";
 
-  try{
+  /*
+    Actual YouTube → Transcript
+    → Myanmar Recap API ကို
+    နောက်အဆင့်မှာ ချိတ်မယ်။
+  */
 
-    /*
-      Backend API ကို နောက်အဆင့်မှာ
-      YouTube → Transcript → Myanmar Recap
-      အဖြစ် ချိတ်ပေးမယ်။
-    */
+  await new Promise(
+    resolve =>
+      setTimeout(resolve,1200)
+  );
 
-    await new Promise(
-      resolve => setTimeout(resolve,1200)
-    );
-
-    document.getElementById("script").value =
+  document
+    .getElementById("script")
+    .value =
 `HWA AI Movie Recap
 
 YouTube Video:
 ${url}
 
-ဒီနေရာမှာ AI က Movie Transcript ကို
-ခွဲခြမ်းစိတ်ဖြာပြီး သဘာဝကျတဲ့
-မြန်မာ Movie Recap Script ကို
-ထုတ်ပေးမှာဖြစ်ပါတယ်။
-
-နောက်အဆင့်မှာ ဒီနေရာကို
-တကယ် AI-generated Recap နဲ့
-ချိတ်ပေးပါမယ်။`;
-
-    message.innerHTML =
-      "✅ Recap Editor Ready";
-
-  }catch(error){
-
-    message.innerHTML =
-      "❌ Error ဖြစ်သွားပါတယ်";
-
-  }finally{
-
-    loading.style.display = "none";
-    startBtn.disabled = false;
-
-  }
+Login User:
+${
+  (await supabaseClient.auth.getUser())
+    .data.user?.email || "Unknown"
 }
+
+ဒီနေရာမှာ နောက်အဆင့်တွင်
+YouTube Video
+→ Transcript
+→ AI Context Analysis
+→ Natural Myanmar Recap
+
+အဖြစ် တကယ်အလုပ်လုပ်အောင်
+Backend API နဲ့ ချိတ်ဆက်ပေးမယ်။`;
+
+  message.innerHTML =
+    "✅ Recap Editor Ready";
+
+  loading.style.display =
+    "none";
+
+  startBtn.disabled =
+    false;
+
+}
+
+
+/* =====================================
+   COPY
+   ===================================== */
 
 function copyScript(){
 
@@ -340,17 +626,29 @@ function copyScript(){
   );
 
   alert("Script copied!");
+
 }
+
+
+/* =====================================
+   DOWNLOAD
+   ===================================== */
 
 function downloadScript(){
 
   const text =
-    document.getElementById("script").value;
+    document
+      .getElementById("script")
+      .value;
 
   const blob =
-    new Blob([text],{
-      type:"text/plain;charset=utf-8"
-    });
+    new Blob(
+      [text],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
 
   const url =
     URL.createObjectURL(blob);
@@ -358,13 +656,24 @@ function downloadScript(){
   const a =
     document.createElement("a");
 
-  a.href = url;
-  a.download = "HWA-AI-Recap.txt";
+  a.href =
+    url;
+
+  a.download =
+    "HWA-AI-Recap.txt";
+
   a.click();
 
   URL.revokeObjectURL(url);
+
 }
 
+
+/* =====================================
+   START
+   ===================================== */
+
+checkLogin();
 checkBackend();
 
 </script>
