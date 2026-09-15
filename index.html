@@ -947,23 +947,51 @@
       // IMPORTANT:
       // Full transcript object ကို backend သို့ပို့မည်
 
-      const transcript =
-        transcriptData.transcript ||
-        transcriptData;
+      // ==========================================
+// GET FULL TRANSCRIPT TEXT
+// ==========================================
 
-      const transcriptText =
-        transcript.text ||
-        transcriptData.text ||
-        "";
+let transcriptText = "";
 
-      if (!transcriptText) {
+if (
+  typeof transcriptData.transcript === "string"
+) {
 
-        throw new Error(
-          "Transcript စာသား မတွေ့ပါ။"
-        );
+  transcriptText =
+    transcriptData.transcript.trim();
 
-      }
+} else if (
+  transcriptData.transcript &&
+  typeof transcriptData.transcript === "object"
+) {
 
+  transcriptText =
+    (
+      transcriptData.transcript.text ||
+      ""
+    ).trim();
+
+} else if (
+  typeof transcriptData.text === "string"
+) {
+
+  transcriptText =
+    transcriptData.text.trim();
+
+}
+
+if (!transcriptText) {
+
+  throw new Error(
+    "Transcript စာသား မတွေ့ပါ။"
+  );
+
+}
+
+console.log(
+  "FULL TRANSCRIPT LENGTH:",
+  transcriptText.length
+);
 
       // --------------------------------------
       // STEP 3 — AI RECAP
