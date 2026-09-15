@@ -234,141 +234,357 @@ app.get("/api/video/plan", (req, res) => {
 
 /* =========================================================
    YOUTUBE TRANSCRIPT
+   HWA AI - Full Transcript
 ========================================================= */
 
-app.get(
-  "/api/youtube/transcript",
-  async (req, res) => {
-    try {
-      const { url } = req.query;
+app.get("/api/youtube/transcript", async (req, res) => {
+  try {
+    const { url } = req.query;
 
-      if (!url) {
-        return res.status(400).json({
-          success: false,
-          error:
-            "YouTube URL is required"
-        });
-      }
+    if (!url) {
+      return res.status(400).json({
+        success: false,
+        error: "YouTube URL is required"
+      });
+    }
 
-      const videoId =
-        getYouTubeVideoId(url);
+    const videoId = getYouTubeVideoId(url);
 
-      if (!videoId) {
-        return res.status(400).json({
-          success: false,
-          error:
-            "Invalid YouTube URL"
-        });
-      }
+    if (!videoId) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid YouTube URL"
+      });
+    }
 
-      const apiKey =
-        process.env.TRANSCRIPT_API_KEY;
+    const apiKey = process.env.TRANSCRIPT_API_KEY;
 
-      if (!apiKey) {
-        return res.status(500).json({
-          success: false,
-          error:
-            "TRANSCRIPT_API_KEY is not configured"
-        });
-      }
+    if (!apiKey) {
+      return res.status(500).json({
+        success: false,
+        error: "TRANSCRIPT_API_KEY is not configured"
+      });
+    }
 
-      const response =
-        await fetch(
-          "https://www.youtubetranscript.dev/api/v2/transcribe",
-          {
-            method: "POST",
+    console.log(
+      `[Transcript] Starting: ${videoId}`
+    );
 
-            headers: {
-              "Authorization":
-                `Bearer ${apiKey}`,
+    /* -----------------------------------------------------
+       1. REQUEST TRANSCRIPT
+    ----------------------------------------------------- */
 
-              "Content-Type":
-                "application/json"
-            },
+    const response = await fetch(
+      "https://www.youtubetranscript.dev/api/v2/transcribe",
+      {
+        method: "POST",
 
-            body: JSON.stringify({
-              video: videoId,
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
 
-              source: "auto",
+        body: JSON.stringify({
+          video: videoId,
 
-              format: {
-                timestamp: true,
-                paragraphs: true
-              }
-            })
+          source: "auto",
+
+          allow_asr: true,
+
+          format: {
+            timestamp: true,
+            paragraphs: true,
+            words: false
           }
-        );
-
-      const rawText =
-        await response.text();
-
-      let data;
-
-      try {
-        data =
-          JSON.parse(rawText);
-      } catch {
-        data = {
-          raw: rawText
-        };
+        })
       }
+    );
 
-      if (!response.ok) {
-        return res.status(
-          response.status
-        ).json({
-          success: false,
-          api_status:
-            response.status,
+    const rawText = await response.text();
 
-          error:
-            data?.message ||
-            data?.error ||
-            data?.code ||
-            "Transcript API error",
+    let data;
 
-          details: data
-        });
-      }
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = {
+        raw: rawText
+      };
+    }
 
-      res.json({
-        success: true,
+    console.log(
+      "[Transcript] API status:",
+      response.status
+    );
+
+    console.log(
+      "[Transcript] Job status:",
+      data?.status
+    );
+
+    /* -----------------------------------------------------
+       2. API ERROR
+    ----------------------------------------------------- */
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        success: false,
 
         videoId,
 
-        status:
-          data?.status,
+        api_status: response.status,
 
-        transcript:
-  data?.data?.transcript ||
-  data?.transcript ||
-  data?.data?.text ||
-  data?.text ||
-  null,
-
-debug: data
-
-        request:
-          data?.request_id ||
-          null
-      });
-
-    } catch (error) {
-      console.error(
-        "Transcript error:",
-        error
-      );
-
-      res.status(500).json({
-        success: false,
         error:
-          error.message ||
-          "Transcript request failed"
+          data?.message ||
+          data?.error ||
+          data?.code ||
+          "Transcript API error",
+
+        details: data
       });
     }
-  }
-);
 
+    /* -----------------------------------------------------
+       3. READ TRANSCRIPT OBJECT
+    ----------------------------------------------------- */
+
+    const transcriptData =
+      data?.data?.transcript || null;
+
+    /* -----------------------------------------------------
+       4. TEXT VERSION
+    ----------------------------------------------------- */
+
+    let transcriptText = null;
+
+    if (
+      transcriptData &&
+      typeof transcriptData === "object" &&
+      !Array.isArray(transcriptData)
+    ) {
+      transcriptText =
+        transcriptData.text || null;
+    }
+
+    if (
+      !transcriptText &&
+      typeof transcriptData === "string"
+    ) {
+      transcriptText = transcriptData;
+    }
+
+    if (!transcriptText) {
+      transcriptText =
+        data?.transcript?.text ||
+        data?.data?.text ||
+        data?.text ||
+        null;
+    }
+
+    /* -----------------------------------------------------
+       5. SEGMENTS VERSION
+    ----------------------------------------------------- */
+
+    let segments = [];
+
+    if (
+      transcriptData &&
+      Array.isArray(transcriptData.segments)
+    ) {
+      segments =
+        transcriptData.segments;
+    }
+
+    if (
+      segments.length === 0 &&
+      Array.isArray(transcriptData)
+    ) {
+      segments =
+        transcriptData;
+    }
+
+    if (
+      segments.length === 0 &&
+      Array.isArray(data?.data?.segments)
+    ) {
+      segments =
+        data.data.segments;
+    }
+
+    /* -----------------------------------------------------
+       6. BUILD TEXT FROM SEGMENTS
+       This protects against missing .text
+    ----------------------------------------------------- */
+
+    if (
+      (!transcriptText ||
+        transcriptText.trim().length < 20) &&
+      segments.length > 0
+    ) {
+      transcriptText = segments
+        .map(segment => {
+          if (typeof segment === "string") {
+            return segment;
+          }
+
+          return (
+            segment?.text ||
+            segment?.content ||
+            ""
+          );
+        })
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+    }
+
+    /* -----------------------------------------------------
+       7. ASR JOB
+    ----------------------------------------------------- */
+
+    const status =
+      data?.status || "unknown";
+
+    const jobId =
+      data?.job_id ||
+      data?.request_id ||
+      null;
+
+    /*
+      If ASR is still processing, return a clear response.
+      The frontend/backend can use this status instead
+      of sending an empty transcript to the AI.
+    */
+
+    if (
+      status === "processing" ||
+      status === "queued" ||
+      status === "pending"
+    ) {
+      return res.status(202).json({
+        success: false,
+
+        processing: true,
+
+        videoId,
+
+        status,
+
+        job_id: jobId,
+
+        request_id:
+          data?.request_id || null,
+
+        message:
+          "Transcript is still processing. Please try again shortly."
+      });
+    }
+
+    /* -----------------------------------------------------
+       8. NO TRANSCRIPT
+    ----------------------------------------------------- */
+
+    if (
+      !transcriptText ||
+      transcriptText.trim().length < 20
+    ) {
+      console.error(
+        "[Transcript] No usable transcript returned."
+      );
+
+      return res.status(422).json({
+        success: false,
+
+        videoId,
+
+        status,
+
+        error:
+          "No usable transcript was returned.",
+
+        message:
+          "The transcript provider did not return enough text.",
+
+        request_id:
+          data?.request_id || null,
+
+        job_id: jobId,
+
+        details: data
+      });
+    }
+
+    /* -----------------------------------------------------
+       9. NORMALIZE TRANSCRIPT
+    ----------------------------------------------------- */
+
+    transcriptText =
+      transcriptText
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .replace(/[ \t]+/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+    console.log(
+      `[Transcript] Success: ${transcriptText.length} characters`
+    );
+
+    console.log(
+      `[Transcript] Segments: ${segments.length}`
+    );
+
+    /* -----------------------------------------------------
+       10. SUCCESS
+    ----------------------------------------------------- */
+
+    return res.json({
+      success: true,
+
+      videoId,
+
+      status,
+
+      transcript: transcriptText,
+
+      transcript_length:
+        transcriptText.length,
+
+      segment_count:
+        segments.length,
+
+      segments,
+
+      language:
+        transcriptData?.language ||
+        data?.data?.language ||
+        null,
+
+      source:
+        transcriptData?.source ||
+        data?.data?.source ||
+        null,
+
+      request_id:
+        data?.request_id || null
+    });
+
+  } catch (error) {
+    console.error(
+      "[Transcript] Fatal error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+
+      error:
+        error?.message ||
+        "Transcript request failed"
+    });
+  }
+});
+          
 /* =========================================================
    TRANSCRIPT TEXT
 ========================================================= */
