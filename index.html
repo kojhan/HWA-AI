@@ -671,272 +671,156 @@
 
   async function startRecap() {
 
-    const url =
-      document
-        .getElementById(
-          "youtubeUrl"
-        )
-        .value
-        .trim();
+  const url = document.getElementById("youtubeUrl").value.trim();
 
-
-    if (!isYouTubeUrl(url)) {
-
-      alert(
-        "YouTube Link မှန်မှန်ထည့်ပါ။"
-      );
-
-      return;
-
-    }
-
-
-    const button =
-      document.getElementById(
-        "startButton"
-      );
-
-
-    const status =
-      document.getElementById(
-        "statusBox"
-      );
-
-
-    const progressBox =
-      document.getElementById(
-        "progressBox"
-      );
-
-
-    const progressBar =
-      document.getElementById(
-        "progressBar"
-      );
-
-
-    const progressText =
-      document.getElementById(
-        "progressText"
-      );
-
-
-    const resultBox =
-      document.getElementById(
-        "resultBox"
-      );
-
-
-    button.disabled = true;
-
-    resultBox.classList.add(
-      "hidden"
-    );
-
-    progressBox.classList.remove(
-      "hidden"
-    );
-
-
-    progressBar.style.width =
-      "10%";
-
-
-    progressText.textContent =
-      "🔎 YouTube Video ကို စစ်နေပါတယ်...";
-
-
-    status.innerHTML =
-      "⏳ Video information ရှာနေပါတယ်...";
-
-
-    try {
-
-      progressBar.style.width =
-        "35%";
-
-
-      const response =
-        await fetch(
-          "/api/youtube/info?url=" +
-          encodeURIComponent(url)
-        );
-
-
-      const data =
-        await response.json();
-
-
-      if (!response.ok ||
-          !data.success) {
-
-        throw new Error(
-          data.message ||
-          "YouTube information မရပါ။"
-        );
-
-      }
-
-
-      progressBar.style.width =
-        "75%";
-
-
-      progressText.textContent =
-        "⚙️ Dynamic Processing Plan ပြင်ဆင်နေပါတယ်...";
-
-
-      const video = {
-  title: data.title,
-  duration: {
-    text: data.durationText
+  if (!isYouTubeUrl(url)) {
+    alert("YouTube Link မှန်မှန်ထည့်ပါ။");
+    return;
   }
-};
 
-const plan = {
-  total_parts: data.parts.length,
-  parts: data.parts.map(part => ({
-    part: part.part,
-    duration: {
-      text:
-        Math.floor(part.duration / 60) +
-        "m " +
-        (part.duration % 60) +
-        "s"
-    },
-    start_seconds: part.start,
-    end_seconds: part.start + part.duration
-  }))
-};
+  const button = document.getElementById("startButton");
+  const status = document.getElementById("statusBox");
+  const progressBox = document.getElementById("progressBox");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
 
+  button.disabled = true;
+  progressBox.classList.remove("hidden");
 
-      document
-        .getElementById(
-          "videoTitle"
-        )
-        .textContent =
-        video.title;
+  try {
 
+    progressBar.style.width = "15%";
+    progressText.textContent = "🔎 YouTube Video စစ်နေပါတယ်...";
+    status.innerHTML = "⏳ Video information ရယူနေပါတယ်...";
 
-      document
-        .getElementById(
-          "videoDuration"
-        )
-        .textContent =
-        video.duration.text;
+    const infoResponse = await fetch(
+      "/api/youtube/info?url=" + encodeURIComponent(url)
+    );
 
+    const data = await infoResponse.json();
 
-      document
-        .getElementById(
-          "totalParts"
-        )
-        .textContent =
-        plan.total_parts +
-        " part" +
-        (
-          plan.total_parts > 1
-            ? "s"
-            : ""
-        );
-
-
-      // ====================================
-      // PART LIST
-      // ====================================
-
-      const partList =
-        document.getElementById(
-          "partList"
-        );
-
-
-      partList.innerHTML =
-        "<h4>📦 Processing Parts</h4>";
-
-
-      plan.parts.forEach(
-        function(part) {
-
-          const div =
-            document.createElement(
-              "div"
-            );
-
-
-          div.className =
-            "part";
-
-
-          div.innerHTML =
-            `Part ${part.part} — ` +
-            `${part.duration.text}` +
-            ` <span style="color:#777">` +
-            `(${part.start_seconds}s → ` +
-            `${part.end_seconds}s)` +
-            `</span>`;
-
-
-          partList.appendChild(
-            div
-          );
-
-        }
-      );
-
-
-      progressBar.style.width =
-        "100%";
-
-
-      progressText.textContent =
-        "✅ Video information ရရှိပါပြီ";
-
-
-      status.innerHTML =
-        `<span class="success">` +
-        `✅ Dynamic Processing Ready` +
-        `</span><br>` +
-        `Video duration ကို အမှန်ဖတ်ပြီး ` +
-        `${plan.total_parts} part` +
-        `${
-          plan.total_parts > 1
-            ? "s"
-            : ""
-        } ခွဲထားပါတယ်။`;
-
-
-      resultBox.classList.remove(
-        "hidden"
-      );
-
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      progressBar.style.width =
-        "0%";
-
-
-      progressText.textContent =
-        "❌ Processing failed";
-
-
-      status.innerHTML =
-        `<span class="error">` +
-        `❌ ${error.message}` +
-        `</span>`;
-
-
+    if (!infoResponse.ok || !data.success) {
+      throw new Error(data.message || "Video information မရပါ။");
     }
 
+    progressBar.style.width = "30%";
+    progressText.textContent = "📝 Transcript ရယူနေပါတယ်...";
+    status.innerHTML = "⏳ Video စာသား ရယူနေပါတယ်...";
+
+    const transcriptResponse = await fetch(
+      "/api/youtube/transcript?url=" + encodeURIComponent(url)
+    );
+
+    const transcriptData = await transcriptResponse.json();
+
+    if (!transcriptResponse.ok || !transcriptData.success) {
+      throw new Error(
+        transcriptData.message || "Transcript မရပါ။"
+      );
+    }
+
+    const transcript =
+      transcriptData.transcript?.text ||
+      transcriptData.text ||
+      "";
+
+    if (!transcript) {
+      throw new Error("Transcript စာသား မတွေ့ပါ။");
+    }
+
+    progressBar.style.width = "55%";
+    progressText.textContent = "🤖 Myanmar Recap ရေးနေပါတယ်...";
+    status.innerHTML = "⏳ AI က မြန်မာလို Recap Script ပြုလုပ်နေပါတယ်...";
+
+    const recapResponse = await fetch(
+      "/api/recap/generate",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          transcript: transcript,
+          language: "Myanmar",
+          video_title: data.title
+        })
+      }
+    );
+
+    const recapData = await recapResponse.json();
+
+    if (!recapResponse.ok || !recapData.success) {
+      throw new Error(
+        recapData.message || "Myanmar Recap မထုတ်နိုင်ပါ။"
+      );
+    }
+
+    const script =
+      recapData.script ||
+      recapData.text ||
+      recapData.recap ||
+      "";
+
+    progressBar.style.width = "100%";
+    progressText.textContent = "✅ Myanmar Recap Script ရပါပြီ";
+    status.innerHTML = "✅ Myanmar Recap Ready";
+
+    let oldBox = document.getElementById("recapScriptBox");
+
+    if (oldBox) oldBox.remove();
+
+    const box = document.createElement("div");
+
+    box.id = "recapScriptBox";
+    box.style.cssText =
+      "margin-top:20px;padding:20px;background:#171923;border:1px solid #30333e;border-radius:16px;";
+
+    box.innerHTML = `
+      <h3>📝 Myanmar Recap Script</h3>
+
+      <textarea id="recapScript"
+        style="width:100%;min-height:500px;padding:15px;
+        box-sizing:border-box;border-radius:12px;
+        background:#0d0f15;color:white;
+        border:1px solid #30333e;
+        font-size:16px;line-height:1.8;">
+      </textarea>
+
+      <br><br>
+
+      <button onclick="copyRecapScript()">
+        📋 Copy Script
+      </button>
+    `;
+
+    document.body.appendChild(box);
+
+    document.getElementById("recapScript").value = script;
+
+  } catch (error) {
+
+    console.error(error);
+
+    progressBar.style.width = "0%";
+    progressText.textContent = "❌ Processing Failed";
+    status.innerHTML = "❌ " + error.message;
+
+  } finally {
 
     button.disabled = false;
 
   }
+}
 
+function copyRecapScript() {
 
+  const text = document.getElementById("recapScript").value;
+
+  navigator.clipboard.writeText(text)
+    .then(() => alert("✅ Script copied!"))
+    .catch(() => alert("Copy မလုပ်နိုင်ပါ။"));
+
+  }        
   // ==========================================
   // INIT
   // ==========================================
