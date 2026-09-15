@@ -511,3 +511,78 @@ app.listen(PORT, () => {
   );
 
 });
+// YouTube Transcript API
+app.get("/api/youtube/transcript", async (req, res) => {
+  try {
+    const { url } = req.query;
+
+    if (!url) {
+      return res.status(400).json({
+        success: false,
+        error: "YouTube URL is required"
+      });
+    }
+
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/
+    );
+
+    if (!match) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid YouTube URL"
+      });
+    }
+
+    const videoId = match[1];
+    const apiKey = process.env.TRANSCRIPT_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({
+        success: false,
+        error: "TRANSCRIPT_API_KEY is not configured"
+      });
+    }
+
+    const response = await fetch(
+      "https://youtubetranscript.dev/api/v2/transcribe",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          video: videoId,
+          format: {
+            timestamp: true
+          }
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        success: false,
+        error: data?.message || data?.error || "Transcript API error",
+        details: data
+      });
+    }
+
+    return res.json({
+      success: true,
+      videoId,
+      transcript: data?.data?.transcript || data?.transcript || data
+    });
+
+  } catch (error) {
+    console.error("Transcript error:", error);
+
+    return res.status(500).json({
+      success: false,
+      error: "Failed to get transcript"
+    });
+  }
+});
