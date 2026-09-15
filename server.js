@@ -511,7 +511,6 @@ app.listen(PORT, () => {
   );
 
 });
-// YouTube Transcript API
 app.get("/api/youtube/transcript", async (req, res) => {
   try {
     const { url } = req.query;
@@ -545,7 +544,7 @@ app.get("/api/youtube/transcript", async (req, res) => {
     }
 
     const response = await fetch(
-      "https://youtubetranscript.dev/api/v2/transcribe",
+      "https://www.youtubetranscript.dev/api/v2/transcribe",
       {
         method: "POST",
         headers: {
@@ -554,19 +553,29 @@ app.get("/api/youtube/transcript", async (req, res) => {
         },
         body: JSON.stringify({
           video: videoId,
+          source: "auto",
           format: {
-            timestamp: true
+            timestamp: true,
+            paragraphs: true
           }
         })
       }
     );
 
-    const data = await response.json();
+    const rawText = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = { raw: rawText };
+    }
 
     if (!response.ok) {
       return res.status(response.status).json({
         success: false,
-        error: data?.message || data?.error || "Transcript API error",
+        api_status: response.status,
+        error: data?.message || data?.error || data?.code || "Transcript API error",
         details: data
       });
     }
@@ -574,7 +583,9 @@ app.get("/api/youtube/transcript", async (req, res) => {
     return res.json({
       success: true,
       videoId,
-      transcript: data?.data?.transcript || data?.transcript || data
+      status: data?.status,
+      transcript: data?.data?.transcript || null,
+      request: data?.request_id || null
     });
 
   } catch (error) {
@@ -582,7 +593,7 @@ app.get("/api/youtube/transcript", async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      error: "Failed to get transcript"
+      error: error.message || "Transcript request failed"
     });
   }
 });
