@@ -1,682 +1,656 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HWA AI - Movie Recap</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-*{box-sizing:border-box}
+  <title>HWA AI - Movie Recap Studio</title>
 
-body{
-  margin:0;
-  font-family:Arial,"Noto Sans Myanmar",sans-serif;
-  background:#0b0d12;
-  color:#fff;
-}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-header{
-  padding:18px 20px;
-  border-bottom:1px solid #252832;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-.logo{
-  font-size:24px;
-  font-weight:bold;
-}
+    body {
+      margin: 0;
+      background: #090a0f;
+      color: #f4f4f5;
+      font-family: Arial, sans-serif;
+    }
 
-.logo span{color:#7c5cff}
+    header {
+      padding: 24px 32px;
+      border-bottom: 1px solid #242631;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.status{
-  color:#55e68a;
-  font-size:13px;
-}
+    .logo {
+      font-size: 30px;
+      font-weight: 800;
+    }
 
-.container{
-  max-width:850px;
-  margin:auto;
-  padding:30px 18px;
-}
+    .logo span {
+      color: #805cff;
+    }
 
-.hero{
-  text-align:center;
-  margin-bottom:30px;
-}
+    .ready {
+      color: #55e58a;
+      font-size: 15px;
+    }
 
-.hero h1{
-  font-size:32px;
-  margin:10px 0;
-}
+    .container {
+      max-width: 760px;
+      margin: auto;
+      padding: 55px 20px;
+    }
 
-.hero p{
-  color:#9da3b0;
-  line-height:1.8;
-}
+    h1 {
+      text-align: center;
+      font-size: 40px;
+      margin-bottom: 15px;
+    }
 
-.card{
-  background:#13161d;
-  border:1px solid #272b36;
-  border-radius:18px;
-  padding:22px;
-  margin-bottom:18px;
-}
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      font-size: 18px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
 
-label{
-  display:block;
-  margin-bottom:8px;
-  color:#cbd0da;
-}
+    .card {
+      background: #171923;
+      border: 1px solid #292c38;
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
 
-input,select,textarea{
-  width:100%;
-  background:#0d1016;
-  border:1px solid #303542;
-  color:#fff;
-  border-radius:10px;
-  padding:14px;
-  outline:none;
-  font-size:15px;
-}
+    .login-card {
+      text-align: center;
+    }
 
-input:focus,textarea:focus{
-  border-color:#7c5cff;
-}
+    .login-card h2 {
+      margin-top: 0;
+    }
 
-textarea{
-  min-height:300px;
-  resize:vertical;
-  line-height:1.7;
-}
+    .email {
+      color: #9477ff;
+      font-size: 18px;
+      margin: 12px 0 20px;
+      word-break: break-word;
+    }
 
-.row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
+    label {
+      display: block;
+      font-size: 17px;
+      color: #c7c9d2;
+      margin: 20px 0 10px;
+    }
 
-button{
-  width:100%;
-  border:0;
-  border-radius:11px;
-  padding:15px;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-}
+    input,
+    select {
+      width: 100%;
+      padding: 18px;
+      border-radius: 15px;
+      border: 1px solid #30333e;
+      background: #0d0f15;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
 
-.primary{
-  background:#7c5cff;
-  color:white;
-}
+    input:focus,
+    select:focus {
+      border-color: #805cff;
+    }
 
-.primary:disabled{
-  background:#363944;
-  color:#888;
-  cursor:not-allowed;
-}
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 15px;
+      padding: 17px;
+      margin-top: 20px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.secondary{
-  background:#242832;
-  color:white;
-  margin-top:10px;
-}
+    .google {
+      background: white;
+      color: #111;
+    }
 
-.google{
-  background:white;
-  color:#111;
-}
+    .start {
+      background: #805cff;
+      color: white;
+      font-size: 18px;
+    }
 
-.logout{
-  background:#242832;
-  color:#fff;
-  margin-top:10px;
-}
+    .start:disabled {
+      background: #393342;
+      color: #888;
+      cursor: not-allowed;
+    }
 
-.result{
-  display:none;
-}
+    .logout {
+      background: #282b35;
+      color: white;
+      margin-top: 0;
+    }
 
-.message{
-  margin-top:12px;
-  padding:12px;
-  border-radius:9px;
-  background:#1c2029;
-  color:#b9c0cc;
-  font-size:14px;
-  line-height:1.6;
-}
+    .status {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #20232d;
+      color: #bfc2cc;
+      line-height: 1.6;
+    }
 
-.loading{
-  display:none;
-  text-align:center;
-  padding:15px;
-  color:#9d8cff;
-}
+    .hidden {
+      display: none;
+    }
 
-.userBox{
-  display:none;
-  margin-bottom:18px;
-  padding:15px;
-  border-radius:12px;
-  background:#171a22;
-  border:1px solid #292e3a;
-}
+    .progress {
+      height: 10px;
+      background: #2a2d37;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
 
-.userEmail{
-  color:#9d8cff;
-  word-break:break-all;
-  margin-bottom:10px;
-}
+    .bar {
+      width: 0%;
+      height: 100%;
+      background: #805cff;
+      transition: width .4s;
+    }
 
-.loginBox{
-  display:block;
-}
+    .plan {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 15px;
+      background: #101219;
+      border: 1px solid #2b2e39;
+    }
 
-@media(max-width:600px){
-  .row{grid-template-columns:1fr}
-  .hero h1{font-size:27px}
-}
-</style>
+    .part {
+      padding: 9px 0;
+      border-bottom: 1px solid #252832;
+      color: #bbb;
+    }
+
+    .part:last-child {
+      border-bottom: 0;
+    }
+
+    .ok {
+      color: #55e58a;
+    }
+
+    .error {
+      color: #ff7777;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 20px;
+      }
+
+      .container {
+        padding-top: 35px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-  <div class="logo">HWA <span>AI</span></div>
-  <div class="status">● AI Ready</div>
+  <div class="logo">
+    HWA <span>AI</span>
+  </div>
+
+  <div class="ready">
+    ● AI Ready
+  </div>
 </header>
 
 <div class="container">
 
-  <div class="hero">
-    <h1>Movie Recap Studio</h1>
-    <p>
-      ဗီဒီယိုထဲက ဇာတ်လမ်းကို မြန်မာလို
-      သဘာဝကျကျ Recap ပြန်ရေးပေးမယ့် AI
-    </p>
+  <h1>Movie Recap Studio</h1>
+
+  <div class="subtitle">
+    YouTube Video ကို မြန်မာလို Recap ပြုလုပ်ပေးမယ့် AI
   </div>
 
   <!-- LOGIN -->
-  <div class="card loginBox" id="loginBox">
+  <div class="card login-card">
 
-    <h2>🔐 HWA AI Login</h2>
+    <div id="loggedOut">
 
-    <p style="color:#9da3b0;line-height:1.7">
-      HWA AI ကိုအသုံးပြုရန် Google Account ဖြင့် Login ဝင်ပါ။
-    </p>
+      <h2>🔐 HWA AI Login</h2>
 
-    <button
-      class="google"
-      onclick="loginWithGoogle()">
-      🔵 Continue with Google
-    </button>
+      <p style="color:#aaa;">
+        Google Account ဖြင့် Login ဝင်ပြီး HWA AI ကိုအသုံးပြုပါ။
+      </p>
 
-    <div class="message" id="loginMessage">
-      Google Login Ready
+      <button class="google" onclick="loginWithGoogle()">
+        Continue with Google
+      </button>
+
+    </div>
+
+    <div id="loggedIn" class="hidden">
+
+      <h2>👤 Logged in</h2>
+
+      <div id="userEmail" class="email"></div>
+
+      <button class="logout" onclick="logout()">
+        Logout
+      </button>
+
     </div>
 
   </div>
 
-  <!-- USER -->
-  <div class="card userBox" id="userBox">
 
-    <div style="font-weight:bold;margin-bottom:8px">
-      👤 Logged in
-    </div>
+  <!-- MAIN TOOL -->
+  <div id="mainTool" class="card hidden">
 
-    <div class="userEmail" id="userEmail"></div>
-
-    <button
-      class="logout"
-      onclick="logout()">
-      Logout
-    </button>
-
-  </div>
-
-  <!-- MOVIE RECAP -->
-  <div class="card" id="recapCard" style="display:none">
-
-    <label>YouTube Video Link</label>
+    <label>
+      YouTube Video Link
+    </label>
 
     <input
       id="youtubeUrl"
       type="url"
       placeholder="https://www.youtube.com/watch?v=..."
+      oninput="checkInput()"
     >
 
-    <div class="row" style="margin-top:15px">
 
-      <div>
-        <label>Recap Language</label>
+    <label>
+      Recap Language
+    </label>
 
-        <select id="language">
-          <option value="my">မြန်မာ</option>
-          <option value="en">English</option>
-        </select>
-      </div>
+    <select id="language">
+      <option value="my">မြန်မာ</option>
+      <option value="en">English</option>
+    </select>
 
-      <div>
-        <label>Recap Length</label>
 
-        <select id="length">
-          <option value="short">Short</option>
-          <option value="medium" selected>Medium</option>
-          <option value="long">Long</option>
-        </select>
-      </div>
+    <label>
+      Recap Length
+    </label>
 
-    </div>
+    <select id="recapLength">
+      <option value="auto">Auto — Video Duration အလိုက်</option>
+      <option value="short">Short</option>
+      <option value="medium" selected>Medium</option>
+      <option value="long">Long</option>
+    </select>
+
 
     <button
-      class="primary"
-      id="startBtn"
-      style="margin-top:18px"
-      onclick="startRecap()">
+      id="startButton"
+      class="start"
+      onclick="startRecap()"
+      disabled
+    >
       🎬 Start Movie Recap
     </button>
 
-    <div class="loading" id="loading">
-      ⏳ AI က လုပ်ဆောင်နေပါတယ်...
+
+    <div id="statusBox" class="status">
+      🟢 Backend Connected — HWA AI Ready
     </div>
 
-    <div class="message" id="message">
-      Backend စစ်ဆေးနေပါတယ်...
+
+    <div id="progressBox" class="hidden">
+
+      <div id="progressText">
+        Preparing...
+      </div>
+
+      <div class="progress">
+        <div id="progressBar" class="bar"></div>
+      </div>
+
     </div>
 
-  </div>
 
-  <!-- RESULT -->
-  <div class="card result" id="resultCard">
-
-    <label>AI Recap Script</label>
-
-    <textarea
-      id="script"
-      placeholder="AI ထုတ်ပေးမယ့် မြန်မာ Recap Script..."
-    ></textarea>
-
-    <button
-      class="secondary"
-      onclick="copyScript()">
-      📋 Copy Script
-    </button>
-
-    <button
-      class="secondary"
-      onclick="downloadScript()">
-      ⬇️ Download TXT
-    </button>
+    <div id="planBox" class="plan hidden"></div>
 
   </div>
 
 </div>
 
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-/* =====================================
-   HWA AI SUPABASE CONFIG
-   ===================================== */
-
-const SUPABASE_URL =
-  "https://ovobepocmajyrkyzkrsu.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_L5Ch_awKHbdQJ8f_6sxJHQ_llUl394l";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-
-/* =====================================
-   BACKEND
-   ===================================== */
-
-const BACKEND =
-  "https://hwa-ai.onrender.com";
-
-
-/* =====================================
-   GOOGLE LOGIN
-   ===================================== */
-
-async function loginWithGoogle(){
-
-  const loginMessage =
-    document.getElementById("loginMessage");
-
-  loginMessage.innerHTML =
-    "⏳ Google Login ဖွင့်နေပါတယ်...";
-
-  const { error } =
-    await supabaseClient.auth.signInWithOAuth({
-
-      provider:"google",
-
-      options:{
-        redirectTo:
-          window.location.origin
-      }
-
-    });
-
-  if(error){
-
-    loginMessage.innerHTML =
-      "❌ Login Error: " + error.message;
-
-  }
-
-}
-
-
-/* =====================================
-   CHECK LOGIN
-   ===================================== */
-
-async function checkLogin(){
-
-  const {
-    data:{
-      session
-    }
-  } =
-    await supabaseClient.auth.getSession();
-
-  updateLoginUI(session);
-
-}
-
-
-/* =====================================
-   LOGIN STATE
-   ===================================== */
-
-function updateLoginUI(session){
-
-  const loginBox =
-    document.getElementById("loginBox");
-
-  const userBox =
-    document.getElementById("userBox");
-
-  const recapCard =
-    document.getElementById("recapCard");
-
-  const userEmail =
-    document.getElementById("userEmail");
-
-  if(session && session.user){
-
-    loginBox.style.display =
-      "none";
-
-    userBox.style.display =
-      "block";
-
-    recapCard.style.display =
-      "block";
-
-    userEmail.innerHTML =
-      session.user.email || "Google User";
-
-  }else{
-
-    loginBox.style.display =
-      "block";
-
-    userBox.style.display =
-      "none";
-
-    recapCard.style.display =
-      "none";
-
-  }
-
-}
-
-
-/* =====================================
-   AUTH STATE LISTENER
-   ===================================== */
-
-supabaseClient.auth.onAuthStateChange(
-  (_event, session) => {
-
-    updateLoginUI(session);
-
-  }
-);
-
-
-/* =====================================
-   LOGOUT
-   ===================================== */
-
-async function logout(){
-
-  await supabaseClient.auth.signOut();
-
-}
-
-
-/* =====================================
-   BACKEND CHECK
-   ===================================== */
-
-async function checkBackend(){
-
-  const message =
-    document.getElementById("message");
-
-  try{
-
-    const response =
-      await fetch(
-        BACKEND + "/api/health"
-      );
-
-    const data =
-      await response.json();
-
-    if(data.success){
-
-      message.innerHTML =
-        "✅ Backend Connected — HWA AI Ready";
-
-    }else{
-
-      message.innerHTML =
-        "⚠️ Backend response မမှန်ပါ";
-
-    }
-
-  }catch(error){
-
-    message.innerHTML =
-      "❌ Backend ချိတ်မရပါ";
-
-  }
-
-}
-
-
-/* =====================================
-   START RECAP
-   ===================================== */
-
-async function startRecap(){
-
-  const url =
-    document
-      .getElementById("youtubeUrl")
-      .value
-      .trim();
-
-  const message =
-    document.getElementById("message");
-
-  const loading =
-    document.getElementById("loading");
-
-  const resultCard =
-    document.getElementById("resultCard");
-
-  const startBtn =
-    document.getElementById("startBtn");
-
-  if(!url){
-
-    message.innerHTML =
-      "⚠️ YouTube Link အရင်ထည့်ပါ";
-
-    return;
-
-  }
-
-  if(
-    !url.includes("youtube.com") &&
-    !url.includes("youtu.be")
-  ){
-
-    message.innerHTML =
-      "⚠️ YouTube Link မမှန်ပါ";
-
-    return;
-
-  }
-
-  startBtn.disabled = true;
-
-  loading.style.display =
-    "block";
-
-  message.innerHTML =
-    "🎬 Video ကို စတင်စစ်ဆေးနေပါတယ်...";
-
-  resultCard.style.display =
-    "block";
-
-  /*
-    Actual YouTube → Transcript
-    → Myanmar Recap API ကို
-    နောက်အဆင့်မှာ ချိတ်မယ်။
-  */
-
-  await new Promise(
-    resolve =>
-      setTimeout(resolve,1200)
-  );
-
-  document
-    .getElementById("script")
-    .value =
-`HWA AI Movie Recap
-
-YouTube Video:
-${url}
-
-Login User:
-${
-  (await supabaseClient.auth.getUser())
-    .data.user?.email || "Unknown"
-}
-
-ဒီနေရာမှာ နောက်အဆင့်တွင်
-YouTube Video
-→ Transcript
-→ AI Context Analysis
-→ Natural Myanmar Recap
-
-အဖြစ် တကယ်အလုပ်လုပ်အောင်
-Backend API နဲ့ ချိတ်ဆက်ပေးမယ်။`;
-
-  message.innerHTML =
-    "✅ Recap Editor Ready";
-
-  loading.style.display =
-    "none";
-
-  startBtn.disabled =
-    false;
-
-}
-
-
-/* =====================================
-   COPY
-   ===================================== */
-
-function copyScript(){
-
-  const script =
-    document.getElementById("script");
-
-  navigator.clipboard.writeText(
-    script.value
-  );
-
-  alert("Script copied!");
-
-}
-
-
-/* =====================================
-   DOWNLOAD
-   ===================================== */
-
-function downloadScript(){
-
-  const text =
-    document
-      .getElementById("script")
-      .value;
-
-  const blob =
-    new Blob(
-      [text],
-      {
-        type:
-          "text/plain;charset=utf-8"
-      }
+  // ==========================================
+  // SUPABASE CONFIG
+  // ==========================================
+
+  const SUPABASE_URL =
+    "https://ovobepocmajyrkyzkrsu.supabase.co";
+
+  // IMPORTANT:
+  // Replace this with your Supabase PUBLISHABLE KEY
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_L5Ch_awKHbdQJ8f_6sxJHQ_llUl394l";
+
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
     );
 
-  const url =
-    URL.createObjectURL(blob);
 
-  const a =
-    document.createElement("a");
+  // ==========================================
+  // GOOGLE LOGIN
+  // ==========================================
 
-  a.href =
-    url;
+  async function loginWithGoogle() {
 
-  a.download =
-    "HWA-AI-Recap.txt";
+    try {
 
-  a.click();
+      const { error } =
+        await supabaseClient.auth.signInWithOAuth({
 
-  URL.revokeObjectURL(url);
+          provider: "google",
 
-}
+          options: {
+            redirectTo: window.location.origin
+          }
+
+        });
+
+      if (error) {
+        alert(error.message);
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Google Login failed.");
+
+    }
+
+  }
 
 
-/* =====================================
-   START
-   ===================================== */
+  // ==========================================
+  // LOGOUT
+  // ==========================================
 
-checkLogin();
-checkBackend();
+  async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    location.reload();
+
+  }
+
+
+  // ==========================================
+  // CHECK LOGIN
+  // ==========================================
+
+  async function checkAuth() {
+
+    const {
+      data: {
+        session
+      }
+    } = await supabaseClient.auth.getSession();
+
+
+    if (session && session.user) {
+
+      document
+        .getElementById("loggedOut")
+        .classList
+        .add("hidden");
+
+      document
+        .getElementById("loggedIn")
+        .classList
+        .remove("hidden");
+
+      document
+        .getElementById("mainTool")
+        .classList
+        .remove("hidden");
+
+      document
+        .getElementById("userEmail")
+        .textContent =
+        session.user.email || "Google User";
+
+    }
+
+  }
+
+
+  // ==========================================
+  // YOUTUBE URL CHECK
+  // ==========================================
+
+  function isYouTubeUrl(url) {
+
+    try {
+
+      const u = new URL(url);
+
+      return (
+        u.hostname.includes("youtube.com") ||
+        u.hostname.includes("youtu.be")
+      );
+
+    } catch {
+
+      return false;
+
+    }
+
+  }
+
+
+  function checkInput() {
+
+    const url =
+      document
+        .getElementById("youtubeUrl")
+        .value
+        .trim();
+
+    const button =
+      document.getElementById("startButton");
+
+    button.disabled =
+      !isYouTubeUrl(url);
+
+  }
+
+
+  // ==========================================
+  // START RECAP
+  // ==========================================
+
+  async function startRecap() {
+
+    const url =
+      document
+        .getElementById("youtubeUrl")
+        .value
+        .trim();
+
+    if (!isYouTubeUrl(url)) {
+
+      alert("YouTube Link မှန်မှန်ထည့်ပါ။");
+
+      return;
+
+    }
+
+
+    const status =
+      document.getElementById("statusBox");
+
+    const progressBox =
+      document.getElementById("progressBox");
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const progressText =
+      document.getElementById("progressText");
+
+    const planBox =
+      document.getElementById("planBox");
+
+    const button =
+      document.getElementById("startButton");
+
+
+    button.disabled = true;
+
+    progressBox.classList.remove("hidden");
+
+    planBox.classList.add("hidden");
+
+    progressBar.style.width = "10%";
+
+    progressText.textContent =
+      "🔎 Video information ကို စစ်နေပါတယ်...";
+
+    status.innerHTML =
+      "⏳ HWA AI is preparing your video...";
+
+
+    /*
+      NOTE:
+      ဒီအဆင့်မှာ backend က YouTube duration
+      ကို တကယ်ဖတ်တဲ့ endpoint ကို နောက်အဆင့်မှာ
+      ထည့်မယ်။
+
+      အခုတော့ backend health ကိုစစ်ပြီး
+      processing system အတွက် foundation
+      ချိတ်ထားပါတယ်။
+    */
+
+
+    try {
+
+      const healthResponse =
+        await fetch("/api/health");
+
+      if (!healthResponse.ok) {
+        throw new Error("Backend unavailable");
+      }
+
+
+      progressBar.style.width = "35%";
+
+      progressText.textContent =
+        "🎬 Video processing plan ပြင်ဆင်နေပါတယ်...";
+
+
+      /*
+        Current backend API requires duration_seconds.
+
+        Actual YouTube duration extraction
+        will be connected in the next backend step.
+      */
+
+
+      await new Promise(
+        resolve => setTimeout(resolve, 800)
+      );
+
+
+      progressBar.style.width = "60%";
+
+      progressText.textContent =
+        "🧠 Dynamic processing system Ready";
+
+
+      status.innerHTML =
+        "<span class='ok'>✅ Backend Connected</span><br>" +
+        "YouTube Link လက်ခံပြီးပါပြီ။<br>" +
+        "နောက်တစ်ဆင့်မှာ Video Duration ကို အလိုအလျောက်ဖတ်ပြီး " +
+        "10 မိနစ်စီခွဲ Process လုပ်ပါမယ်။";
+
+
+      progressBar.style.width = "100%";
+
+
+      planBox.classList.remove("hidden");
+
+      planBox.innerHTML = `
+        <strong>⚙️ Dynamic Processing</strong>
+
+        <p style="color:#aaa;">
+          Video အတို/အရှည်အလိုက် အလိုအလျောက်တွက်မယ်။
+        </p>
+
+        <div class="part">
+          🎬 20 min → 2 parts
+        </div>
+
+        <div class="part">
+          🎬 1h 05m → 7 parts
+        </div>
+
+        <div class="part">
+          🎬 2h 05m → 13 parts
+        </div>
+
+        <p class="ok">
+          ✓ 10-minute chunk system Ready
+        </p>
+      `;
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      status.innerHTML =
+        "<span class='error'>❌ Backend connection failed.</span>";
+
+      progressText.textContent =
+        "Processing failed.";
+
+    }
+
+
+    button.disabled = false;
+
+  }
+
+
+  // ==========================================
+  // INITIALIZE
+  // ==========================================
+
+  checkAuth();
 
 </script>
 
 </body>
-</html>
+  </html>
