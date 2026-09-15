@@ -395,10 +395,19 @@ ${transcriptText}
       });
     }
 
-    res.json({
-      success: true,
-      script: data.output_text || ""
-    });
+    const script =
+  data.output_text ||
+  data.output?.flatMap(item =>
+    item.content
+      ?.filter(content => content.type === "output_text")
+      ?.map(content => content.text)
+  ).filter(Boolean).join("\n") ||
+  "";
+
+res.json({
+  success: true,
+  script: script
+});
 
   } catch (error) {
 
