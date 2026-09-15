@@ -45,7 +45,7 @@
     .container {
       max-width: 760px;
       margin: auto;
-      padding: 55px 20px;
+      padding: 50px 20px;
     }
 
     h1 {
@@ -58,7 +58,7 @@
       text-align: center;
       color: #aaa;
       font-size: 18px;
-      margin-bottom: 40px;
+      margin-bottom: 35px;
       line-height: 1.6;
     }
 
@@ -72,10 +72,6 @@
 
     .login-card {
       text-align: center;
-    }
-
-    .login-card h2 {
-      margin-top: 0;
     }
 
     .email {
@@ -125,6 +121,12 @@
       color: #111;
     }
 
+    .logout {
+      background: #282b35;
+      color: white;
+      margin-top: 0;
+    }
+
     .start {
       background: #805cff;
       color: white;
@@ -137,19 +139,13 @@
       cursor: not-allowed;
     }
 
-    .logout {
-      background: #282b35;
-      color: white;
-      margin-top: 0;
-    }
-
     .status {
       margin-top: 20px;
       padding: 16px;
       border-radius: 14px;
       background: #20232d;
       color: #bfc2cc;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .hidden {
@@ -171,16 +167,42 @@
       transition: width .4s;
     }
 
-    .plan {
-      margin-top: 18px;
-      padding: 18px;
-      border-radius: 15px;
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 16px;
       background: #101219;
       border: 1px solid #2b2e39;
     }
 
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 12px 0;
+      border-bottom: 1px solid #252832;
+    }
+
+    .result-row:last-child {
+      border-bottom: 0;
+    }
+
+    .result-label {
+      color: #999;
+    }
+
+    .result-value {
+      color: white;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .part-list {
+      margin-top: 18px;
+    }
+
     .part {
-      padding: 9px 0;
+      padding: 10px 0;
       border-bottom: 1px solid #252832;
       color: #bbb;
     }
@@ -189,7 +211,7 @@
       border-bottom: 0;
     }
 
-    .ok {
+    .success {
       color: #55e58a;
     }
 
@@ -197,18 +219,33 @@
       color: #ff7777;
     }
 
+    .warning {
+      color: #ffc857;
+    }
+
     @media (max-width: 600px) {
+
       header {
         padding: 20px;
       }
 
       .container {
-        padding-top: 35px;
+        padding: 35px 15px;
       }
 
       h1 {
         font-size: 32px;
       }
+
+      .result-row {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .result-value {
+        text-align: left;
+      }
+
     }
   </style>
 </head>
@@ -216,6 +253,7 @@
 <body>
 
 <header>
+
   <div class="logo">
     HWA <span>AI</span>
   </div>
@@ -223,7 +261,9 @@
   <div class="ready">
     ● AI Ready
   </div>
+
 </header>
+
 
 <div class="container">
 
@@ -233,7 +273,9 @@
     YouTube Video ကို မြန်မာလို Recap ပြုလုပ်ပေးမယ့် AI
   </div>
 
+
   <!-- LOGIN -->
+
   <div class="card login-card">
 
     <div id="loggedOut">
@@ -244,19 +286,27 @@
         Google Account ဖြင့် Login ဝင်ပြီး HWA AI ကိုအသုံးပြုပါ။
       </p>
 
-      <button class="google" onclick="loginWithGoogle()">
+      <button
+        class="google"
+        onclick="loginWithGoogle()">
         Continue with Google
       </button>
 
     </div>
 
+
     <div id="loggedIn" class="hidden">
 
       <h2>👤 Logged in</h2>
 
-      <div id="userEmail" class="email"></div>
+      <div
+        id="userEmail"
+        class="email">
+      </div>
 
-      <button class="logout" onclick="logout()">
+      <button
+        class="logout"
+        onclick="logout()">
         Logout
       </button>
 
@@ -266,7 +316,10 @@
 
 
   <!-- MAIN TOOL -->
-  <div id="mainTool" class="card hidden">
+
+  <div
+    id="mainTool"
+    class="card hidden">
 
     <label>
       YouTube Video Link
@@ -285,8 +338,15 @@
     </label>
 
     <select id="language">
-      <option value="my">မြန်မာ</option>
-      <option value="en">English</option>
+
+      <option value="my">
+        မြန်မာ
+      </option>
+
+      <option value="en">
+        English
+      </option>
+
     </select>
 
 
@@ -295,10 +355,23 @@
     </label>
 
     <select id="recapLength">
-      <option value="auto">Auto — Video Duration အလိုက်</option>
-      <option value="short">Short</option>
-      <option value="medium" selected>Medium</option>
-      <option value="long">Long</option>
+
+      <option value="auto" selected>
+        Auto — Video Duration အလိုက်
+      </option>
+
+      <option value="short">
+        Short
+      </option>
+
+      <option value="medium">
+        Medium
+      </option>
+
+      <option value="long">
+        Long
+      </option>
+
     </select>
 
 
@@ -306,31 +379,113 @@
       id="startButton"
       class="start"
       onclick="startRecap()"
-      disabled
-    >
+      disabled>
+
       🎬 Start Movie Recap
+
     </button>
 
 
-    <div id="statusBox" class="status">
+    <div
+      id="statusBox"
+      class="status">
+
       🟢 Backend Connected — HWA AI Ready
+
     </div>
 
 
-    <div id="progressBox" class="hidden">
+    <div
+      id="progressBox"
+      class="hidden">
 
       <div id="progressText">
         Preparing...
       </div>
 
       <div class="progress">
-        <div id="progressBar" class="bar"></div>
+
+        <div
+          id="progressBar"
+          class="bar">
+        </div>
+
       </div>
 
     </div>
 
 
-    <div id="planBox" class="plan hidden"></div>
+    <!-- VIDEO RESULT -->
+
+    <div
+      id="resultBox"
+      class="result hidden">
+
+      <h3>
+        🎬 Video Information
+      </h3>
+
+      <div class="result-row">
+
+        <div class="result-label">
+          Title
+        </div>
+
+        <div
+          id="videoTitle"
+          class="result-value">
+        </div>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <div class="result-label">
+          Video Duration
+        </div>
+
+        <div
+          id="videoDuration"
+          class="result-value">
+        </div>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <div class="result-label">
+          Processing Parts
+        </div>
+
+        <div
+          id="totalParts"
+          class="result-value">
+        </div>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <div class="result-label">
+          Processing Method
+        </div>
+
+        <div class="result-value">
+          Dynamic 10-minute chunks
+        </div>
+
+      </div>
+
+
+      <div
+        id="partList"
+        class="part-list">
+      </div>
+
+    </div>
 
   </div>
 
@@ -340,14 +495,13 @@
 <script>
 
   // ==========================================
-  // SUPABASE CONFIG
+  // SUPABASE
   // ==========================================
 
   const SUPABASE_URL =
     "https://ovobepocmajyrkyzkrsu.supabase.co";
 
-  // IMPORTANT:
-  // Replace this with your Supabase PUBLISHABLE KEY
+
   const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_L5Ch_awKHbdQJ8f_6sxJHQ_llUl394l";
 
@@ -367,16 +521,20 @@
 
     try {
 
-      const { error } =
-        await supabaseClient.auth.signInWithOAuth({
+      const {
+        error
+      } =
+      await supabaseClient.auth.signInWithOAuth({
 
-          provider: "google",
+        provider: "google",
 
-          options: {
-            redirectTo: window.location.origin
-          }
+        options: {
+          redirectTo:
+            window.location.origin
+        }
 
-        });
+      });
+
 
       if (error) {
         alert(error.message);
@@ -386,7 +544,9 @@
 
       console.error(error);
 
-      alert("Google Login failed.");
+      alert(
+        "Google Login failed."
+      );
 
     }
 
@@ -407,7 +567,7 @@
 
 
   // ==========================================
-  // CHECK LOGIN
+  // CHECK AUTH
   // ==========================================
 
   async function checkAuth() {
@@ -416,30 +576,38 @@
       data: {
         session
       }
-    } = await supabaseClient.auth.getSession();
+    } =
+    await supabaseClient.auth.getSession();
 
 
-    if (session && session.user) {
+    if (
+      session &&
+      session.user
+    ) {
 
       document
         .getElementById("loggedOut")
         .classList
         .add("hidden");
 
+
       document
         .getElementById("loggedIn")
         .classList
         .remove("hidden");
+
 
       document
         .getElementById("mainTool")
         .classList
         .remove("hidden");
 
+
       document
         .getElementById("userEmail")
         .textContent =
-        session.user.email || "Google User";
+        session.user.email ||
+        "Google User";
 
     }
 
@@ -447,18 +615,22 @@
 
 
   // ==========================================
-  // YOUTUBE URL CHECK
+  // YOUTUBE URL
   // ==========================================
 
   function isYouTubeUrl(url) {
 
     try {
 
-      const u = new URL(url);
+      const parsed =
+        new URL(url);
+
 
       return (
-        u.hostname.includes("youtube.com") ||
-        u.hostname.includes("youtu.be")
+        parsed.hostname
+          .includes("youtube.com") ||
+        parsed.hostname ===
+          "youtu.be"
       );
 
     } catch {
@@ -474,12 +646,18 @@
 
     const url =
       document
-        .getElementById("youtubeUrl")
+        .getElementById(
+          "youtubeUrl"
+        )
         .value
         .trim();
 
+
     const button =
-      document.getElementById("startButton");
+      document.getElementById(
+        "startButton"
+      );
+
 
     button.disabled =
       !isYouTubeUrl(url);
@@ -495,146 +673,245 @@
 
     const url =
       document
-        .getElementById("youtubeUrl")
+        .getElementById(
+          "youtubeUrl"
+        )
         .value
         .trim();
 
+
     if (!isYouTubeUrl(url)) {
 
-      alert("YouTube Link မှန်မှန်ထည့်ပါ။");
+      alert(
+        "YouTube Link မှန်မှန်ထည့်ပါ။"
+      );
 
       return;
 
     }
 
 
+    const button =
+      document.getElementById(
+        "startButton"
+      );
+
+
     const status =
-      document.getElementById("statusBox");
+      document.getElementById(
+        "statusBox"
+      );
+
 
     const progressBox =
-      document.getElementById("progressBox");
+      document.getElementById(
+        "progressBox"
+      );
+
 
     const progressBar =
-      document.getElementById("progressBar");
+      document.getElementById(
+        "progressBar"
+      );
+
 
     const progressText =
-      document.getElementById("progressText");
+      document.getElementById(
+        "progressText"
+      );
 
-    const planBox =
-      document.getElementById("planBox");
 
-    const button =
-      document.getElementById("startButton");
+    const resultBox =
+      document.getElementById(
+        "resultBox"
+      );
 
 
     button.disabled = true;
 
-    progressBox.classList.remove("hidden");
+    resultBox.classList.add(
+      "hidden"
+    );
 
-    planBox.classList.add("hidden");
+    progressBox.classList.remove(
+      "hidden"
+    );
 
-    progressBar.style.width = "10%";
+
+    progressBar.style.width =
+      "10%";
+
 
     progressText.textContent =
-      "🔎 Video information ကို စစ်နေပါတယ်...";
+      "🔎 YouTube Video ကို စစ်နေပါတယ်...";
+
 
     status.innerHTML =
-      "⏳ HWA AI is preparing your video...";
-
-
-    /*
-      NOTE:
-      ဒီအဆင့်မှာ backend က YouTube duration
-      ကို တကယ်ဖတ်တဲ့ endpoint ကို နောက်အဆင့်မှာ
-      ထည့်မယ်။
-
-      အခုတော့ backend health ကိုစစ်ပြီး
-      processing system အတွက် foundation
-      ချိတ်ထားပါတယ်။
-    */
+      "⏳ Video information ရှာနေပါတယ်...";
 
 
     try {
 
-      const healthResponse =
-        await fetch("/api/health");
+      progressBar.style.width =
+        "35%";
 
-      if (!healthResponse.ok) {
-        throw new Error("Backend unavailable");
+
+      const response =
+        await fetch(
+          "/api/youtube/info?url=" +
+          encodeURIComponent(url)
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok ||
+          !data.success) {
+
+        throw new Error(
+          data.message ||
+          "YouTube information မရပါ။"
+        );
+
       }
 
 
-      progressBar.style.width = "35%";
+      progressBar.style.width =
+        "75%";
+
 
       progressText.textContent =
-        "🎬 Video processing plan ပြင်ဆင်နေပါတယ်...";
+        "⚙️ Dynamic Processing Plan ပြင်ဆင်နေပါတယ်...";
 
 
-      /*
-        Current backend API requires duration_seconds.
-
-        Actual YouTube duration extraction
-        will be connected in the next backend step.
-      */
+      const video =
+        data.video;
 
 
-      await new Promise(
-        resolve => setTimeout(resolve, 800)
+      const plan =
+        data.processing.plan;
+
+
+      document
+        .getElementById(
+          "videoTitle"
+        )
+        .textContent =
+        video.title;
+
+
+      document
+        .getElementById(
+          "videoDuration"
+        )
+        .textContent =
+        video.duration.text;
+
+
+      document
+        .getElementById(
+          "totalParts"
+        )
+        .textContent =
+        plan.total_parts +
+        " part" +
+        (
+          plan.total_parts > 1
+            ? "s"
+            : ""
+        );
+
+
+      // ====================================
+      // PART LIST
+      // ====================================
+
+      const partList =
+        document.getElementById(
+          "partList"
+        );
+
+
+      partList.innerHTML =
+        "<h4>📦 Processing Parts</h4>";
+
+
+      plan.parts.forEach(
+        function(part) {
+
+          const div =
+            document.createElement(
+              "div"
+            );
+
+
+          div.className =
+            "part";
+
+
+          div.innerHTML =
+            `Part ${part.part} — ` +
+            `${part.duration.text}` +
+            ` <span style="color:#777">` +
+            `(${part.start_seconds}s → ` +
+            `${part.end_seconds}s)` +
+            `</span>`;
+
+
+          partList.appendChild(
+            div
+          );
+
+        }
       );
 
 
-      progressBar.style.width = "60%";
+      progressBar.style.width =
+        "100%";
+
 
       progressText.textContent =
-        "🧠 Dynamic processing system Ready";
+        "✅ Video information ရရှိပါပြီ";
 
 
       status.innerHTML =
-        "<span class='ok'>✅ Backend Connected</span><br>" +
-        "YouTube Link လက်ခံပြီးပါပြီ။<br>" +
-        "နောက်တစ်ဆင့်မှာ Video Duration ကို အလိုအလျောက်ဖတ်ပြီး " +
-        "10 မိနစ်စီခွဲ Process လုပ်ပါမယ်။";
+        `<span class="success">` +
+        `✅ Dynamic Processing Ready` +
+        `</span><br>` +
+        `Video duration ကို အမှန်ဖတ်ပြီး ` +
+        `${plan.total_parts} part` +
+        `${
+          plan.total_parts > 1
+            ? "s"
+            : ""
+        } ခွဲထားပါတယ်။`;
 
 
-      progressBar.style.width = "100%";
-
-
-      planBox.classList.remove("hidden");
-
-      planBox.innerHTML = `
-        <strong>⚙️ Dynamic Processing</strong>
-
-        <p style="color:#aaa;">
-          Video အတို/အရှည်အလိုက် အလိုအလျောက်တွက်မယ်။
-        </p>
-
-        <div class="part">
-          🎬 20 min → 2 parts
-        </div>
-
-        <div class="part">
-          🎬 1h 05m → 7 parts
-        </div>
-
-        <div class="part">
-          🎬 2h 05m → 13 parts
-        </div>
-
-        <p class="ok">
-          ✓ 10-minute chunk system Ready
-        </p>
-      `;
+      resultBox.classList.remove(
+        "hidden"
+      );
 
 
     } catch (error) {
 
       console.error(error);
 
-      status.innerHTML =
-        "<span class='error'>❌ Backend connection failed.</span>";
+
+      progressBar.style.width =
+        "0%";
+
 
       progressText.textContent =
-        "Processing failed.";
+        "❌ Processing failed";
+
+
+      status.innerHTML =
+        `<span class="error">` +
+        `❌ ${error.message}` +
+        `</span>`;
+
 
     }
 
@@ -645,7 +922,7 @@
 
 
   // ==========================================
-  // INITIALIZE
+  // INIT
   // ==========================================
 
   checkAuth();
