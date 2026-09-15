@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HWA AI</title>
+  <title>HWA AI - Movie Recap</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -12,174 +14,385 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
       font-family: Arial, sans-serif;
-      background: #0b1020;
+      background: #0b0f14;
       color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
     }
 
     .app {
-      width: 100%;
-      max-width: 430px;
+      max-width: 700px;
+      margin: auto;
+      padding: 25px 18px;
     }
 
-    .card {
-      background: #151c30;
-      border: 1px solid #293451;
-      border-radius: 22px;
-      padding: 30px 22px;
+    .header {
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      padding: 25px 0;
     }
 
     .logo {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 18px;
-      border-radius: 20px;
-      background: #2563eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
+      font-size: 34px;
       font-weight: bold;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 30px;
+    .sub {
+      color: #9aa4b2;
+      margin-top: 6px;
     }
 
-    .subtitle {
-      margin: 8px 0 28px;
-      color: #9ca9c7;
+    .card {
+      background: #121821;
+      border: 1px solid #26303d;
+      border-radius: 18px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      border-radius: 12px;
+      padding: 14px;
       font-size: 15px;
     }
 
-    .google-btn {
-      width: 100%;
-      border: 0;
-      border-radius: 13px;
-      padding: 15px;
-      background: white;
-      color: #111827;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
+    input, textarea {
+      background: #0b0f14;
+      color: white;
+      border: 1px solid #303b49;
+      outline: none;
     }
 
-    .google-btn:active {
-      transform: scale(.98);
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      margin-top: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #4f8cff;
+      color: white;
+    }
+
+    button.secondary {
+      background: #202a36;
     }
 
     .status {
-      margin-top: 18px;
-      min-height: 24px;
-      color: #9ca9c7;
-      font-size: 14px;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #0d141c;
+      color: #9fb0c3;
+      text-align: center;
     }
 
     .hidden {
       display: none;
     }
 
-    .home {
-      text-align: left;
-    }
-
-    .welcome {
-      margin-bottom: 20px;
-    }
-
-    .user-email {
-      color: #9ca9c7;
-      font-size: 14px;
-      word-break: break-all;
-    }
-
-    .logout {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #394563;
-      background: transparent;
-      color: white;
-      border-radius: 12px;
-      cursor: pointer;
+    .user {
+      text-align: center;
+      color: #b8c5d3;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 
 <body>
 
-  <main class="app">
+<div class="app">
 
-    <!-- LOGIN -->
-    <section id="loginCard" class="card">
+  <div class="header">
+    <div class="logo">HWA AI</div>
+    <div class="sub">Movie Recap Studio</div>
+  </div>
 
-      <div class="logo">H</div>
+  <!-- LOGIN -->
+  <div id="loginCard" class="card">
+    <h2>Google Login</h2>
+    <p>HWA AI ကိုအသုံးပြုရန် Google Account ဖြင့် Login ဝင်ပါ။</p>
 
-      <h1>HWA AI</h1>
+    <button onclick="googleLogin()">
+      Continue with Google
+    </button>
 
-      <div class="subtitle">
-        AI Video to Myanmar Recap
-      </div>
+    <button class="secondary" onclick="checkBackend()">
+      Check HWA AI Backend
+    </button>
 
-      <button id="googleLogin" class="google-btn">
-        Continue with Google
-      </button>
+    <div id="loginStatus" class="status">
+      AI Ready
+    </div>
+  </div>
 
-      <div id="status" class="status"></div>
+  <!-- HOME -->
+  <div id="homeCard" class="card hidden">
 
-    </section>
+    <div id="userInfo" class="user"></div>
+
+    <h2>🎬 Movie Recap</h2>
+
+    <input
+      id="youtubeUrl"
+      type="url"
+      placeholder="YouTube Link ထည့်ပါ"
+    >
+
+    <button onclick="startRecap()">
+      🚀 Start Myanmar Recap
+    </button>
+
+    <div id="recapStatus" class="status">
+      Ready
+    </div>
+
+    <textarea
+      id="script"
+      placeholder="AI Myanmar Recap Script ဒီနေရာမှာ ပေါ်လာပါမယ်..."
+    ></textarea>
+
+    <button class="secondary" onclick="copyScript()">
+      📋 Copy Script
+    </button>
+
+    <button class="secondary" onclick="downloadScript()">
+      ⬇️ Download TXT
+    </button>
+
+    <button class="secondary" onclick="logout()">
+      Logout
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+  // ==============================
+  // HWA AI CONFIG
+  // ==============================
+
+  const SUPABASE_URL =
+    "https://ovobepocmajyrkyzkrsu.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "704997142802-hkvu536qtt4q62lnl5b5093sb6n7rqf7.apps.googleusercontent.com";
+
+  const BACKEND_URL =
+    "https://hwa-ai.onrender.com";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
 
 
-    <!-- HOME -->
-    <section id="homeCard" class="card home hidden">
+  // ==============================
+  // GOOGLE LOGIN
+  // ==============================
 
-      <div class="welcome">
-        <h1>HWA AI</h1>
-        <p>Welcome to HWA AI</p>
-        <div id="userEmail" class="user-email"></div>
-      </div>
+  async function googleLogin() {
 
-      <button id="logout" class="logout">
-        Sign Out
-      </button>
+    const status =
+      document.getElementById("loginStatus");
 
-    </section>
+    status.innerText = "Google Login ဖွင့်နေပါပြီ...";
 
-  </main>
+    const { error } =
+      await supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+
+    if (error) {
+      status.innerText =
+        "Login Error: " + error.message;
+    }
+  }
 
 
-  <script type="module">
+  // ==============================
+  // CHECK LOGIN
+  // ==============================
+
+  async function checkUser() {
+
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+    if (session) {
+
+      document
+        .getElementById("loginCard")
+        .classList.add("hidden");
+
+      document
+        .getElementById("homeCard")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("userInfo")
+        .innerText =
+        "Logged in: " +
+        (session.user.email || "Google User");
+
+    }
+  }
+
+
+  // ==============================
+  // BACKEND CHECK
+  // ==============================
+
+  async function checkBackend() {
+
+    const status =
+      document.getElementById("loginStatus");
+
+    status.innerText =
+      "Backend စစ်ဆေးနေပါတယ်...";
+
+    try {
+
+      const response =
+        await fetch(BACKEND_URL);
+
+      const data =
+        await response.json();
+
+      if (data.success) {
+
+        status.innerText =
+          "✅ HWA AI Backend Ready";
+
+      } else {
+
+        status.innerText =
+          "Backend response မမှန်ပါ";
+
+      }
+
+    } catch (error) {
+
+      status.innerText =
+        "❌ Backend ချိတ်မရပါ";
+
+    }
+  }
+
+
+  // ==============================
+  // START RECAP
+  // ==============================
+
+  async function startRecap() {
+
+    const url =
+      document.getElementById("youtubeUrl").value.trim();
+
+    const status =
+      document.getElementById("recapStatus");
+
+    if (!url) {
+
+      status.innerText =
+        "YouTube Link အရင်ထည့်ပါ";
+
+      return;
+    }
+
+    status.innerText =
+      "⏳ Recap processing စတင်နေပါတယ်...";
 
     /*
-      Supabase configuration will be connected
-      in the next step.
+      ဒီနေရာမှာ နောက်တစ်ဆင့်တွင်
+      HWA AI Movie Recap API ကို ချိတ်ပေးမယ်။
     */
 
-    const loginCard = document.getElementById("loginCard");
-    const homeCard = document.getElementById("homeCard");
-    const googleLogin = document.getElementById("googleLogin");
-    const logout = document.getElementById("logout");
-    const status = document.getElementById("status");
-    const userEmail = document.getElementById("userEmail");
+    setTimeout(() => {
 
-    googleLogin.addEventListener("click", () => {
-      status.textContent = "Google Login connection is being prepared...";
-    });
+      status.innerText =
+        "✅ YouTube Link လက်ခံပြီးပါပြီ။ AI processing API ကို ဆက်ချိတ်မယ်။";
 
-    logout.addEventListener("click", () => {
-      homeCard.classList.add("hidden");
-      loginCard.classList.remove("hidden");
-      status.textContent = "";
-    });
+    }, 1000);
+  }
 
-  </script>
+
+  // ==============================
+  // COPY
+  // ==============================
+
+  async function copyScript() {
+
+    const text =
+      document.getElementById("script").value;
+
+    if (!text) return;
+
+    await navigator.clipboard.writeText(text);
+
+    alert("Script copied!");
+  }
+
+
+  // ==============================
+  // DOWNLOAD
+  // ==============================
+
+  function downloadScript() {
+
+    const text =
+      document.getElementById("script").value;
+
+    if (!text) return;
+
+    const blob =
+      new Blob([text], {
+        type: "text/plain;charset=utf-8"
+      });
+
+    const link =
+      document.createElement("a");
+
+    link.href =
+      URL.createObjectURL(blob);
+
+    link.download =
+      "HWA-AI-Myanmar-Recap.txt";
+
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+  }
+
+
+  // ==============================
+  // LOGOUT
+  // ==============================
+
+  async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    location.reload();
+  }
+
+
+  // ==============================
+  // START
+  // ==============================
+
+  checkUser();
+
+</script>
 
 </body>
-      </html>
+  </html>
