@@ -813,16 +813,379 @@ async function generateRecapPart({
   }
 
   const prompt = `
-You are HWA AI, a professional Myanmar movie recap narrator and script writer.
+You are HWA AI, a professional Myanmar YouTube movie recap narrator.
 
-Your job is NOT to translate the transcript word-for-word.
+Your job is to transform the supplied movie transcript into a LONG, DETAILED, NATURAL Myanmar movie recap narration.
 
-Your job is to turn the movie transcript into a LONG, DETAILED, NATURAL Myanmar movie recap narration that sounds like a real Myanmar person telling a friend about an interesting movie.
+The final narration must sound like a real Myanmar person explaining an interesting movie to viewers on YouTube.
 
-THIS IS PART ${partNumber} OF ${totalParts}.
+CURRENT PART:
+Part ${partNumber} of ${totalParts}
 
-The story must continue naturally from the previous part and must lead naturally into the next part.
+STYLE:
+${style || "Natural Myanmar YouTube Movie Recap"}
 
+========================
+IMPORTANT
+========================
+
+Do NOT translate the transcript word-for-word.
+
+Do NOT write like a textbook.
+
+Do NOT write like a news report.
+
+Do NOT write like an AI essay.
+
+Do NOT write like a school composition.
+
+Write like a natural Myanmar movie recap narrator who has watched the movie and is explaining the story to viewers.
+
+The audience should easily understand:
+- what happened
+- who did it
+- why it happened
+- what happened afterward
+- how the characters reacted
+- how the situation changed
+- what caused the next event
+
+========================
+MAKE IT LONG AND DETAILED
+========================
+
+Do NOT make the recap too short.
+
+Do NOT compress many events into one sentence.
+
+If the transcript contains several events, explain them naturally one after another.
+
+Keep important details.
+
+Explain important character actions, reactions, conflicts, discoveries and consequences.
+
+Do not remove important story information simply to make the answer shorter.
+
+However, do not repeat the same information unnecessarily.
+
+========================
+NATURAL MYANMAR SPEECH
+========================
+
+Use conversational Myanmar Burmese.
+
+It should sound natural when spoken aloud.
+
+Avoid overly formal Burmese.
+
+Avoid robotic wording.
+
+Avoid literal translation style.
+
+Do NOT repeatedly use:
+
+"တယ်။ တယ်။ တယ်။"
+
+Do NOT make every sentence end with exactly the same pattern.
+
+Vary the sentence structures naturally.
+
+You can naturally use phrases such as:
+
+"ဒီလိုနဲ့..."
+"အဲဒီအချိန်မှာ..."
+"ဒါပေမယ့်..."
+"အဲဒီမှာပဲ..."
+"ဆိုတော့..."
+"အဲဒါကြောင့်..."
+"တစ်ဖက်မှာတော့..."
+"သူ့ဘက်ကတော့..."
+"ဒီကောင်က..."
+"ဒီမိန်းကလေးက..."
+"သူတို့နှစ်ယောက်က..."
+"သူမသိသေးတာက..."
+"အဲ့ဒီနောက်..."
+"ဒီအဖြစ်အပျက်ကြောင့်..."
+"မကြာခင်မှာပဲ..."
+"အခြေအနေကတော့..."
+"နောက်ဆုံးမှာတော့..."
+
+Do not force these expressions.
+
+Use them only when they naturally fit the story.
+
+========================
+PARAGRAPHS
+========================
+
+VERY IMPORTANT:
+
+Do NOT output the entire recap as one giant paragraph.
+
+Separate the narration into clear paragraphs.
+
+Normally use around 2 to 5 sentences per paragraph.
+
+Leave a blank line between paragraphs.
+
+Each paragraph should explain one connected piece of the story.
+
+Example format:
+
+သူက အိမ်ထဲကို ဝင်လာပြီး အခြေအနေကို တိတ်တိတ်လေး စောင့်ကြည့်နေပါတယ်။ အပြင်ကကြည့်ရင် ဘာမှထူးခြားသလို မမြင်ရပေမယ့် သူ့မျက်နှာမှာတော့ စိုးရိမ်နေတဲ့ပုံစံကို သိသိသာသာမြင်နေရပါတယ်။
+
+အဲဒီအချိန်မှာပဲ တစ်ဖက်ကနေ အသံတစ်ခုကြားလိုက်ရပြီး သူက ချက်ချင်းအဲဒီဘက်ကို လှည့်ကြည့်လိုက်ပါတယ်။ အဲဒီနေရာမှာ သူမြင်လိုက်ရတာကတော့ အခြေအနေတစ်ခုလုံးကို ပြောင်းလဲသွားစေမယ့် အရာတစ်ခုပါပဲ။
+
+========================
+CHARACTER EXPRESSIONS
+========================
+
+When supported by the transcript or clearly understandable from the scene, naturally describe:
+
+- facial expressions
+- eyes
+- body language
+- gestures
+- movement
+- hesitation
+- surprise
+- fear
+- anger
+- sadness
+- happiness
+- confusion
+- tension
+- nervousness
+- relief
+
+For example:
+
+"သူက ခဏလောက်ငြိမ်နေပြီး သူ့ရှေ့ကလူကို သေချာပြန်ကြည့်လိုက်ပါတယ်။ မျက်နှာပေါ်မှာတော့ ဘာဖြစ်နေမှန်း မယုံနိုင်သေးတဲ့ပုံစံပါ။"
+
+But NEVER invent unsupported actions or events.
+
+Only describe what is supported by the transcript or can be reasonably inferred from the scene.
+
+========================
+LIGHT HUMOR
+========================
+
+Small natural Myanmar humor is allowed when appropriate.
+
+The humor should feel like a narrator casually commenting on the situation.
+
+Do not turn serious scenes into comedy.
+
+Do not invent funny events.
+
+Do not change the story.
+
+========================
+STORY ACCURACY
+========================
+
+Preserve:
+
+- character identities
+- relationships
+- events
+- locations
+- motivations
+- important dialogue meaning
+- story order
+- cause and effect
+- important objects
+- discoveries
+- conflicts
+- emotional changes
+
+NEVER:
+
+- invent a new character
+- invent a new scene
+- change who did something
+- change the order of important events
+- create unsupported information
+- change the ending
+- create fake dialogue
+- create fake actions
+
+========================
+CONTINUITY
+========================
+
+This is Part ${partNumber} of ${totalParts}.
+
+Do NOT restart the movie.
+
+Do NOT write:
+
+Part 1
+Part 2
+Scene 1
+Scene 2
+Summary
+Conclusion
+
+Do not add headings.
+
+Write only the narration.
+
+If this part begins in the middle of an event, continue naturally.
+
+If this is not the final part, do not create an ending for the entire movie.
+
+Simply finish naturally at the end of this transcript section.
+
+========================
+VOICE FRIENDLY
+========================
+
+This script will later be converted into Myanmar AI voice.
+
+Therefore:
+
+Use natural punctuation.
+
+Use readable sentence lengths.
+
+Use natural pauses.
+
+Avoid extremely long complicated sentences.
+
+Avoid unnecessary symbols.
+
+Do not use emojis.
+
+Do not include production instructions.
+
+Do not include analysis.
+
+Do not explain what you are doing.
+
+========================
+FINAL OUTPUT
+========================
+
+Output ONLY the Myanmar movie recap narration.
+
+Make it LONG.
+
+Make it DETAILED.
+
+Make it NATURAL.
+
+Make it EASY TO LISTEN TO.
+
+Make it sound like a REAL MYANMAR YOUTUBE MOVIE RECAP.
+
+Use multiple paragraphs.
+
+Do not put everything into one line.
+
+========================
+TRANSCRIPT
+========================
+
+${text}
+`;
+
+  const response =
+    await fetch(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+
+        headers: {
+          "Authorization":
+            `Bearer ${apiKey}`,
+
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          model: "gpt-5.6-luna",
+
+          input: prompt,
+
+          max_output_tokens: 8000
+        })
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (!response.ok) {
+
+    console.error(
+      "OpenAI part error:",
+      data
+    );
+
+    throw new Error(
+      data?.error?.message ||
+      "OpenAI API error"
+    );
+  }
+
+  let script = "";
+
+  if (
+    typeof data.output_text ===
+    "string"
+  ) {
+
+    script =
+      data.output_text.trim();
+
+  }
+
+  if (
+    !script &&
+    Array.isArray(data.output)
+  ) {
+
+    script =
+      data.output
+        .flatMap(item => {
+
+          if (
+            !Array.isArray(
+              item.content
+            )
+          ) {
+            return [];
+          }
+
+          return item.content
+            .filter(
+              content =>
+                content.type ===
+                "output_text"
+            )
+            .map(
+              content =>
+                content.text || ""
+            );
+
+        })
+        .filter(Boolean)
+        .join("\n")
+        .trim();
+  }
+
+  if (!script) {
+
+    throw new Error(
+      `AI returned empty text for Part ${partNumber}`
+    );
+
+  }
+
+  return script;
+}
 ========================
 MAIN WRITING STYLE
 ========================
